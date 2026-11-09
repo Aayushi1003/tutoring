@@ -1,0 +1,28 @@
+name: Class alerts
+
+# Runs on GitHub's servers, so alerts arrive even when the Mac and Claude are off.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TZ: Asia/Kolkata
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet google-cloud-firestore==2.19.0
+      - run: python alerts/cloud_alerts.py
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          TUTOR_UID: ${{ secrets.TUTOR_UID }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
