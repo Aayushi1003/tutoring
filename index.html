@@ -1025,7 +1025,7 @@ button.sm, .btn.sm { padding: 5px 12px; font-size: 13px; }
     };
   }
 
-  function openWhatsApp(prefill, inboxIds, suggested) {
+  function openWhatsApp(prefill, inboxIds, suggested, waitingForMac) {
     view.inboxOpen = inboxIds || [];
     openSheet(`${sheetHead("Add classes", addTabs("wa"))}
       <p class="muted small">Messages from your watched chats arrive by themselves. You can also paste any messages here and the app suggests the classes; double-check the times.</p>
@@ -1047,9 +1047,10 @@ Kabir Papa: Can you take Kabir tomorrow 6:30pm? Science"></textarea>
     if (prefill) {
       $("inboxText").value = prefill;
       const items = (suggested || []).map(cleanItem).filter(Boolean);
-      if (items.length) showReview(items, "Suggested by your Mac from these WhatsApp messages.");
-      else if (suggested) showReview([], "Your Mac found nothing to change in these messages.");
-      else readMessages();
+      const later = waitingForMac ? " Messages you shared from your iPhone get a smarter reading when your Mac next checks." : "";
+      if (items.length) showReview(items, "Suggested by your Mac from these WhatsApp messages." + later);
+      else if (suggested) showReview([], "Your Mac found nothing to change in these messages." + later);
+      else readMessages(later);
     }
     $("chatFile").onchange = () => {
       const f = $("chatFile").files[0]; if (!f) return;
@@ -1328,10 +1329,11 @@ Rules:
     $("reviewActions").hidden = !items.length;
     $("inboxStatus").textContent = items.length ? `Found ${items.length}. Untick anything that looks wrong.${note ? " " + note : ""}` : `No class timings found in those messages.${note ? " " + note : ""}`;
   }
-  async function readMessages() {
+  async function readMessages(note) {
+    const extra = typeof note === "string" ? note : "";
     const text = $("inboxText").value.trim();
     if (!text) { $("inboxStatus").textContent = "Paste some messages first."; return; }
-    if (!sampleFn) { showReview(quickParse(text), "Read with the simple reader, so double-check the times."); return; }
+    if (!sampleFn) { showReview(quickParse(text), "Read with the simple reader, so double-check the times." + extra); return; }
     const btn = $("readBtn");
     btn.disabled = true; btn.textContent = "Reading…";
     $("inboxStatus").textContent = "Claude is reading your messages. This can take up to a minute.";
@@ -1388,13 +1390,16 @@ Rules:
     $("inboxReview").onclick = () => {
       const msgs = view.inbox.slice().sort((a, b) => (a.atMs || 0) - (b.atMs || 0));
       const text = msgs.map((m) => {
+        if (m.needsReading !== undefined && m.chat === "Shared from iPhone") return m.text; // already has WhatsApp's own names and times
         const when = m.atMs ? new Date(m.atMs).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
         const who = m.fromMe ? "Me" : m.sender || m.chat || "Someone";
         return `[${when}] ${who}${m.chat && m.chat !== who ? ` (chat: ${m.chat})` : ""}: ${m.text}`;
       }).join("\n");
       // The Mac's WhatsApp check reads the messages with Claude and attaches suggested changes.
       const items = msgs.flatMap((m) => (Array.isArray(m.items) ? m.items : []));
-      openWhatsApp(text, msgs.map((m) => m.id), items);
+      // Text shared from the iPhone waits for the Mac to read it; until then the app's simple reader suggests changes.
+      const waiting = msgs.some((m) => m.needsReading && !Array.isArray(m.items));
+      openWhatsApp(text, msgs.map((m) => m.id), waiting && !items.length ? null : items, waiting);
     };
   }
   // Which WhatsApp chats the Mac reads, kept in the db so the Mac's 10-minute check can follow it.
@@ -1500,7 +1505,24 @@ Rules:
     if (data.whatsapp) await db.doc("config/whatsapp").set({ ...data.whatsapp, updatedAt: Date.now() });
     toast("Your timetable, fees and settings were moved into your account.");
   }
+  // Text shared from WhatsApp on the iPhone (through the "Send to Tutoring" shortcut) arrives
+  // as ?share=<text>. It goes into the inbox so it can be reviewed, here or on any device.
+  async function receiveShare(db) {
+    const params = new URLSearchParams(location.search);
+    const text = (params.get("share") || "").trim();
+    if (!text) return;
+    params.delete("share");
+    history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "") + location.hash);
+    try {
+      await db.collection("inbox").add({
+        chat: "Shared from iPhone", sender: "Shared", fromMe: false, text: text.slice(0, 5000),
+        atMs: Date.now(), at: new Date().toISOString().slice(0, 16), status: "new", needsReading: true,
+      });
+      toast("Added to your WhatsApp inbox. Tap Review to see the suggested changes.");
+    } catch { toast("Couldn't save the shared messages. Try sharing them again."); }
+  }
   function startSync(db) {
+    receiveShare(db);
     {
       dbNs = db;
       try { unsubs.push(db.collection("inbox").onSnapshot((snap) => { view.inbox = snap.docs.map((d) => ({ ...d.data(), id: d.id })); renderInbox(); }, () => {})); } catch {}
