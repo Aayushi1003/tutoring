@@ -1,0 +1,1543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Tutoring Calendar</title>
+<meta name="description" content="Tutoring timetable, free time, money and WhatsApp updates.">
+<meta name="theme-color" content="#FAF7FD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17151E" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tutoring">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+html { color-scheme: light; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font: 14px system-ui, sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: one big pastel calendar. A slim header (title, date nav, view switch, bell, settings), a one-line "today at a glance" strip, then the calendar. Adding happens in a slide-up sheet. */
+:root {
+  --bg: #FAF7FD;
+  --card: #FFFFFF;
+  --ink: #2F2A3D;
+  --muted: #7B7490;
+  --line: #EEE8F5;
+  --accent: #8B76E0;
+  --accent-soft: #EEE9FF;
+  --free: #3E9C6E;
+  --free-bg: #EAF8F0;
+  --routine-bg: #F3F0F6;
+  --warn: #C2557A;
+  --shadow: 0 10px 30px rgba(70, 50, 120, 0.12);
+  /* student pastels: fill / edge / text */
+  --p0: #FFE4D4; --p0e: #F3A27A; --p0i: #74361A;
+  --p1: #D5F4E4; --p1e: #6BC79B; --p1i: #1D5A3F;
+  --p2: #E7E0FF; --p2e: #9C86E8; --p2i: #3E2C84;
+  --p3: #D8ECFF; --p3e: #6EADEA; --p3i: #1C4B78;
+  --p4: #FFF1C4; --p4e: #E2BD4C; --p4i: #6A510F;
+  --p5: #FFDDE9; --p5e: #EC8CAF; --p5i: #7E2347;
+  --p6: #E3EED5; --p6e: #9BB879; --p6i: #3C5125;
+  --p7: #D4F2F2; --p7e: #5DC0C0; --p7i: #1B5757;
+  --p8: #EEF6C9; --p8e: #B3CB48; --p8i: #4E5911;
+  --p9: #F6DDF8; --p9e: #CE88D6; --p9i: #6A2772;
+  --display: "Fredoka", "Avenir Next Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --hour: 52px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17151E; --card: #211E2A; --ink: #EEEAF6; --muted: #A7A0B8; --line: #312C3D;
+    --accent: #B6A7FF; --accent-soft: #2D2747; --free: #74D3A2; --free-bg: #1B2E26; --routine-bg: #2A2633;
+    --warn: #F08DB0; --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --p0: #4A3329; --p0e: #E99B73; --p0i: #FFDCC8;
+    --p1: #213F33; --p1e: #66C496; --p1i: #CFF4E1;
+    --p2: #352D55; --p2e: #A08BF0; --p2i: #E3DBFF;
+    --p3: #213650; --p3e: #6FAEEA; --p3i: #D3E8FF;
+    --p4: #463C1D; --p4e: #E2BD4C; --p4i: #FFEFC0;
+    --p5: #4A2636; --p5e: #EC8CAF; --p5i: #FFD9E6;
+    --p6: #33402A; --p6e: #9BB879; --p6i: #E0EDD0;
+    --p7: #1F4242; --p7e: #5DC0C0; --p7i: #CFF1F1;
+    --p8: #39401E; --p8e: #B3CB48; --p8i: #EEF6C9;
+    --p9: #44284A; --p9e: #CE88D6; --p9i: #F6DDF8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17151E; --card: #211E2A; --ink: #EEEAF6; --muted: #A7A0B8; --line: #312C3D;
+  --accent: #B6A7FF; --accent-soft: #2D2747; --free: #74D3A2; --free-bg: #1B2E26; --routine-bg: #2A2633;
+  --warn: #F08DB0; --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --p0: #4A3329; --p0e: #E99B73; --p0i: #FFDCC8;
+  --p1: #213F33; --p1e: #66C496; --p1i: #CFF4E1;
+  --p2: #352D55; --p2e: #A08BF0; --p2i: #E3DBFF;
+  --p3: #213650; --p3e: #6FAEEA; --p3i: #D3E8FF;
+  --p4: #463C1D; --p4e: #E2BD4C; --p4i: #FFEFC0;
+  --p5: #4A2636; --p5e: #EC8CAF; --p5i: #FFD9E6;
+  --p6: #33402A; --p6e: #9BB879; --p6i: #E0EDD0;
+  --p7: #1F4242; --p7e: #5DC0C0; --p7i: #CFF1F1;
+    --p8: #39401E; --p8e: #B3CB48; --p8i: #EEF6C9;
+    --p9: #44284A; --p9e: #CE88D6; --p9i: #F6DDF8;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 110px;
+}
+.wrap { max-width: 1200px; margin: 0 auto; display: grid; gap: 14px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; margin: 0; line-height: 1.15; text-wrap: balance; }
+h1 { font-size: clamp(24px, 3.6vw, 32px); }
+h2 { font-size: 20px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.c0 { --ev: var(--p0); --eve: var(--p0e); --evi: var(--p0i); }
+.c1 { --ev: var(--p1); --eve: var(--p1e); --evi: var(--p1i); }
+.c2 { --ev: var(--p2); --eve: var(--p2e); --evi: var(--p2i); }
+.c3 { --ev: var(--p3); --eve: var(--p3e); --evi: var(--p3i); }
+.c4 { --ev: var(--p4); --eve: var(--p4e); --evi: var(--p4i); }
+.c5 { --ev: var(--p5); --eve: var(--p5e); --evi: var(--p5i); }
+.c6 { --ev: var(--p6); --eve: var(--p6e); --evi: var(--p6i); }
+.c7 { --ev: var(--p7); --eve: var(--p7e); --evi: var(--p7i); }
+.c8 { --ev: var(--p8); --eve: var(--p8e); --evi: var(--p8i); }
+.c9 { --ev: var(--p9); --eve: var(--p9e); --evi: var(--p9i); }
+
+button, .btn {
+  font: inherit; font-weight: 700; font-size: 14px; color: var(--ink); background: var(--card);
+  border: 1.5px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; line-height: 1.2;
+}
+button:hover, .btn:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--card); }
+button.soft { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+button.plain { background: transparent; border-color: transparent; color: var(--muted); padding: 6px 10px; }
+button.plain:hover { color: var(--ink); background: var(--routine-bg); }
+button.danger { color: var(--warn); }
+button.icon { width: 38px; height: 38px; padding: 0; }
+button.icon svg { width: 19px; height: 19px; }
+button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+button:disabled { opacity: 0.55; cursor: progress; }
+:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+input, select, textarea {
+  font: inherit; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px;
+  padding: 9px 12px; width: 100%; min-width: 0;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; }
+textarea { min-height: 140px; resize: vertical; font-size: 14px; }
+input[type="checkbox"], input[type="radio"] { width: auto; accent-color: var(--accent); }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field > span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+
+/* Header */
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; justify-content: space-between; }
+.nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.nav .range { font-family: var(--display); font-size: 19px; font-weight: 600; min-width: 0; margin-left: 4px; }
+.views { display: inline-flex; background: var(--card); border: 1.5px solid var(--line); border-radius: 999px; padding: 3px; }
+.views button { border: 0; padding: 6px 14px; background: transparent; color: var(--muted); }
+.views button[aria-selected="true"] { background: var(--accent); color: var(--card); }
+.tools { display: flex; gap: 8px; align-items: center; }
+
+.banner { background: var(--accent-soft); border-radius: 16px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; font-size: 14px; }
+
+/* Glance */
+.glance { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 10px 14px; }
+.glance .msg { font-weight: 700; flex: 1 1 260px; min-width: 0; }
+.pill { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); white-space: nowrap; }
+.pill.free { background: var(--free-bg); color: var(--free); }
+
+/* Follow-ups */
+.followups { background: var(--p4); color: var(--p4i); border-radius: 16px; padding: 10px 14px; display: grid; gap: 6px; }
+.followups h3 { font-size: 15px; }
+.fu { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.fu > span { min-width: 0; flex: 1 1 220px; }
+.fu button { background: var(--card); color: var(--ink); }
+.review .kind.followup { color: var(--warn); }
+
+/* Time grid */
+.tg { background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; overflow-x: auto; }
+.tg-inner { min-width: 760px; }
+.tg.one .tg-inner { min-width: 0; }
+.tg-head, .tg-body { display: grid; }
+.tg-head { border-bottom: 1.5px solid var(--line); }
+.dh { border: 0; border-radius: 0; background: transparent; flex-direction: column; gap: 2px; padding: 10px 4px; color: var(--muted); font-weight: 700; font-size: 12.5px; }
+.dh b { font-family: var(--display); font-weight: 600; font-size: 20px; color: var(--ink); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; }
+.dh.today b { background: var(--accent); color: var(--card); }
+.dh:hover { background: var(--routine-bg); border-color: transparent; }
+.tg-body { padding-block: 10px; }
+.gutter { position: relative; }
+.gutter span { position: absolute; right: 8px; transform: translateY(-50%); font-size: 11.5px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.col {
+  position: relative; border-left: 1.5px solid var(--line); cursor: copy;
+  background-image: repeating-linear-gradient(to bottom, var(--line) 0, var(--line) 1px, transparent 1px, transparent var(--hour));
+}
+.col.today { background-color: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+.free-blk { position: absolute; left: 4px; right: 4px; border-radius: 10px; background: var(--free-bg); color: var(--free); font-size: 11.5px; font-weight: 700; padding: 3px 8px; pointer-events: none; overflow: hidden; opacity: 0.85; }
+.rt-blk { position: absolute; left: 4px; right: 4px; border-radius: 10px; background: repeating-linear-gradient(135deg, var(--routine-bg) 0 6px, transparent 6px 12px); border: 1.5px dashed var(--line); color: var(--muted); font-size: 11.5px; font-weight: 700; padding: 3px 8px; overflow: hidden; cursor: default; }
+.ev {
+  position: absolute; border-radius: 12px; padding: 5px 8px; background: var(--ev); color: var(--evi); border-left: 4px solid var(--eve);
+  font-size: 12.5px; line-height: 1.25; overflow: hidden; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+  display: flex; flex-direction: column; gap: 1px; z-index: 2;
+}
+.ev b { font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev .t { opacity: 0.8; font-variant-numeric: tabular-nums; }
+.ev.short { flex-direction: row; gap: 6px; align-items: baseline; }
+.ev.past { opacity: 0.55; }
+.ev.clash { box-shadow: inset 0 0 0 2px var(--warn); }
+.ev.dragging { cursor: grabbing; z-index: 5; box-shadow: var(--shadow); opacity: 0.95; }
+@media (prefers-reduced-motion: no-preference) {
+  .ev { transition: box-shadow 0.15s, transform 0.15s; }
+  .ev:hover:not(.dragging) { transform: translateY(-1px); box-shadow: var(--shadow); }
+}
+.tg.one .ev { font-size: 14px; padding: 7px 12px; }
+.tg.one .ev b { font-size: 15px; }
+.nowline { position: absolute; left: -4px; right: 0; height: 2px; background: var(--warn); z-index: 4; pointer-events: none; }
+.nowline::before { content: ""; position: absolute; left: 0; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--warn); }
+.hint { font-size: 13px; color: var(--muted); text-align: center; }
+
+/* Month */
+.month { background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 10px; display: grid; gap: 6px; }
+.mhead, .mgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.mhead span { text-align: center; font-size: 12.5px; font-weight: 800; color: var(--muted); }
+.mcell { border-radius: 14px; border: 1.5px solid transparent; background: var(--bg); min-height: 96px; padding: 6px; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 3px; font-weight: 600; text-align: left; min-width: 0; }
+.mcell:hover { border-color: var(--accent); }
+.mcell .n { font-family: var(--display); font-size: 15px; font-weight: 600; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; }
+.mcell.today .n { background: var(--accent); color: var(--card); }
+.mcell.out { opacity: 0.45; }
+.chip { font-size: 11.5px; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: var(--ev); color: var(--evi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.more { font-size: 11.5px; color: var(--muted); padding-left: 4px; }
+.dots { display: none; gap: 3px; flex-wrap: wrap; padding-left: 2px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--eve); display: block; }
+@media (max-width: 640px) {
+  .mcell { min-height: 58px; padding: 4px; }
+  .mcell .chip, .mcell .more { display: none; }
+  .dots { display: flex; }
+}
+
+/* Money */
+.money { display: grid; gap: 14px; }
+.money h2 { margin-top: 6px; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .tiles { grid-template-columns: 1fr 1fr; } .tiles .tile:last-child { grid-column: 1 / -1; } }
+.tile { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
+.tile .k { font-size: 13px; font-weight: 700; color: var(--muted); }
+.tile .v { font-family: var(--display); font-size: clamp(22px, 3.4vw, 28px); font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tile.good { background: var(--free-bg); border-color: transparent; }
+.tile.good .v { color: var(--free); }
+.tile.due .v { color: var(--warn); }
+.mlist { background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 8px; display: grid; gap: 4px; }
+.mrow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px; border-radius: 14px; }
+.mrow:hover { background: var(--bg); }
+.mrow .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--ev); border: 2.5px solid var(--eve); }
+.mrow .name { border: 0; background: none; padding: 0; font-size: 16px; font-weight: 800; border-radius: 6px; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+.mrow .name:hover { text-decoration-color: var(--accent); }
+.mrow .sub { font-size: 13px; color: var(--muted); }
+.mrow .acts { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mrow .acts:empty { display: none; }
+.status-pill { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.status-pill.paid { background: var(--free-bg); color: var(--free); }
+.status-pill.part { background: var(--p4); color: var(--p4i); }
+.status-pill.due { background: var(--p5); color: var(--p5i); }
+.status-pill.unset { background: var(--routine-bg); color: var(--muted); }
+.feeset { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.feeset input { width: 110px; padding: 6px 10px; }
+.feeset select { width: auto; padding: 6px 10px; }
+button.sm, .btn.sm { padding: 5px 12px; font-size: 13px; }
+.amt { font-variant-numeric: tabular-nums; font-weight: 800; }
+
+/* Floating add button */
+.fab {
+  position: fixed; z-index: 15; font-size: 16px; padding: 14px 22px; box-shadow: var(--shadow);
+  right: max(20px, calc(env(safe-area-inset-right, 0px) + 20px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Popover */
+.pop {
+  position: fixed; z-index: 30; width: 310px; max-width: calc(100vw - 32px); background: var(--card); border: 1.5px solid var(--line);
+  border-radius: 18px; box-shadow: var(--shadow); padding: 0 0 14px; display: grid; gap: 10px; overflow: hidden;
+}
+.pop .ph { background: var(--ev); color: var(--evi); padding: 14px 16px 12px; display: grid; gap: 2px; }
+.pop .ph h3 { font-size: 19px; }
+.pop .pb { padding: 0 16px; display: grid; gap: 10px; }
+.pop .facts { display: grid; gap: 3px; font-size: 14px; }
+.swatches { display: flex; gap: 7px; flex-wrap: wrap; }
+.swatches button { width: 26px; height: 26px; padding: 0; border-radius: 50%; background: var(--ev); border: 2px solid var(--eve); }
+.swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--eve); }
+@media (max-width: 600px) {
+  .pop { left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto; max-width: none; border-radius: 22px 22px 0 0; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Sheet */
+.scrim { position: fixed; inset: 0; background: rgba(30, 20, 50, 0.35); z-index: 40; display: grid; place-items: end center; }
+.sheet {
+  background: var(--card); width: min(620px, 100%); max-height: min(88vh, 860px); overflow-y: auto; border-radius: 24px 24px 0 0;
+  padding: 20px max(18px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+  display: grid; gap: 14px; align-content: start; box-shadow: var(--shadow);
+}
+@media (min-width: 700px) { .scrim { place-items: center; } .sheet { border-radius: 24px; } }
+@media (prefers-reduced-motion: no-preference) { .sheet { animation: up 0.22s ease-out; } }
+@keyframes up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.tabs { display: inline-flex; background: var(--bg); border-radius: 999px; padding: 3px; gap: 2px; }
+.tabs button { border: 0; background: transparent; color: var(--muted); padding: 7px 14px; }
+.tabs button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.daypick { display: flex; flex-wrap: wrap; gap: 6px; }
+.daypick label { cursor: pointer; }
+.daypick input { position: absolute; opacity: 0; pointer-events: none; }
+.daypick span { display: inline-block; padding: 6px 11px; border-radius: 999px; border: 1.5px solid var(--line); font-weight: 700; font-size: 13.5px; }
+.daypick input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--card); }
+.daypick input:focus-visible + span { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+.seg { display: inline-flex; gap: 6px; }
+.seg label { cursor: pointer; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: inline-block; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); font-weight: 700; font-size: 14px; }
+.seg input:checked + span { background: var(--accent-soft); border-color: var(--accent); }
+.seg input:focus-visible + span { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+.err-text { color: var(--warn); font-size: 13.5px; font-weight: 600; }
+.status { font-size: 13.5px; color: var(--muted); }
+.review { display: grid; gap: 8px; }
+.review label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border-radius: 14px; background: var(--bg); cursor: pointer; }
+.review .quote { font-size: 12.5px; color: var(--muted); font-style: italic; overflow-wrap: anywhere; }
+.review .kind { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.review .kind.cancel { color: var(--warn); }
+.review .kind.move { color: var(--free); }
+.list { display: grid; gap: 6px; }
+.lrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bg); border-radius: 12px; }
+.lrow > div { min-width: 0; }
+
+/* Sign-in screen */
+.gate { position: fixed; inset: 0; z-index: 60; background: var(--bg); display: grid; place-items: center; overflow-y: auto;
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.gate-card { width: min(400px, 100%); background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; padding: 28px 22px; display: grid; gap: 14px; box-shadow: var(--shadow); }
+.gate-card h1 { font-size: 26px; }
+
+/* Toasts */
+.toasts { position: fixed; left: 0; right: 0; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px; justify-items: center; pointer-events: none; z-index: 50;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.toast { pointer-events: auto; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 10px 14px; display: flex; gap: 10px; align-items: center; max-width: 520px; width: 100%; box-shadow: var(--shadow); font-weight: 600; }
+.toast.alert { background: var(--accent); color: var(--card); }
+.toast p { flex: 1; min-width: 0; }
+.toast button { background: transparent; color: inherit; border-color: currentColor; padding: 4px 12px; font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) { .toast { animation: up 0.2s ease-out; } }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <h1>My Tutoring Calendar</h1>
+    <div class="nav">
+      <button type="button" class="icon" data-act="prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button type="button" data-act="today">Today</button>
+      <button type="button" class="icon" data-act="next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      <span class="range" id="range"></span>
+    </div>
+    <div class="tools">
+      <div class="views" role="tablist" aria-label="Calendar view">
+        <button type="button" role="tab" data-view="day">Day</button>
+        <button type="button" role="tab" data-view="week">Week</button>
+        <button type="button" role="tab" data-view="month">Month</button>
+        <button type="button" role="tab" data-view="money">Money</button>
+      </div>
+      <button type="button" class="icon" id="bellBtn" aria-pressed="false" aria-label="Reminders" title="Reminders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
+      <button type="button" class="icon" id="settingsBtn" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
+    </div>
+  </header>
+
+  <div class="banner" id="sampleBanner" hidden>
+    <span><b>Your timetable sheet is ready.</b> Load its 10 students and 18 weekly classes in place of what's here?</span>
+    <span class="row"><button type="button" class="primary" id="loadSheet">Load my timetable</button><button type="button" class="plain" id="keepMine">Keep what I have</button></span>
+  </div>
+
+  <div class="banner" id="inboxBanner" hidden></div>
+  <div class="glance" id="glance"></div>
+  <div class="followups" id="followups" hidden></div>
+  <div id="cal"></div>
+  <p class="hint" id="hint"></p>
+</div>
+
+<button type="button" class="primary fab" id="addBtn">+ Add classes</button>
+<div class="pop" id="pop" hidden></div>
+<div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="gate" id="authGate" hidden>
+  <form class="gate-card" id="authForm" novalidate>
+    <h1>My Tutoring Calendar</h1>
+    <p class="muted">Sign in to see your timetable, money and WhatsApp updates on any device.</p>
+    <label class="field" for="authEmail"><span>Email</span><input type="email" id="authEmail" autocomplete="username" inputmode="email" required></label>
+    <label class="field" for="authPass"><span>Password</span><input type="password" id="authPass" autocomplete="current-password" required></label>
+    <p class="err-text" id="authErr" hidden></p>
+    <button type="submit" class="primary">Sign in</button>
+    <div class="row" style="justify-content:space-between">
+      <button type="button" class="plain" id="authCreate">Create account</button>
+      <button type="button" class="plain" id="authReset">Forgot password</button>
+    </div>
+  </form>
+</div>
+
+<script>
+(() => {
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const RR = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  const LS = "tutoring-planner-v1";
+  const LS_ALERTS = "tutoring-planner-alerts";
+  const LS_VIEW = "tutoring-planner-view";
+  const HOUR = 52, PPM = HOUR / 60;
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+  const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parseYmd = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+  const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate() + n); return ymd(d); };
+  const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+  const toHHMM = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+  const fmt12 = (t) => { const m = typeof t === "number" ? t : toMin(t); let h = Math.floor(m / 60) % 24; const mm = m % 60; const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return mm ? `${h}:${pad(mm)} ${ap}` : `${h} ${ap}`; };
+  const fmtShort = (m) => { let h = Math.floor(m / 60) % 24; const mm = m % 60; const ap = h >= 12 ? "p" : "a"; h = h % 12 || 12; return (mm ? `${h}:${pad(mm)}` : `${h}`) + ap; };
+  const range12 = (a, b) => `${fmt12(a)} – ${fmt12(b)}`;
+  const dur = (m) => { const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; };
+  const fmtDate = (s, long) => parseYmd(s).toLocaleDateString(undefined, long ? { weekday: "long", day: "numeric", month: "long" } : { weekday: "short", day: "numeric", month: "short" });
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const today = () => ymd(new Date());
+  const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+  const mondayOf = (d) => addDays(d, -((parseYmd(d).getDay() + 6) % 7));
+  const daysText = (days) => {
+    const s = [...days].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7));
+    if (s.length === 7) return "Every day";
+    if (s.length === 6 && !s.includes(0)) return "Mon to Sat";
+    if (s.length === 5 && !s.includes(0) && !s.includes(6)) return "Mon to Fri";
+    return "Every " + s.map((d) => DAYS[d]).join(", ");
+  };
+  const label = (s) => [s.student, s.subject].filter(Boolean).join(" · ") || "Class";
+  const COLORS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const colorOf = (s) => Number.isInteger(s.color) ? s.color : [...(s.student || s.subject || "x").toLowerCase()].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % COLORS.length;
+
+  // ---------- state ----------
+  // The weekly timetable from the tutor's own sheet.
+  function sheetState() {
+    const S = (student, day, start, end, color) => ({ id: uid(), student, subject: "", days: [day], date: null, start, end, place: "", note: "", cancelled: [], color });
+    return {
+      sample: false, seed: "sheet-1",
+      sessions: [
+        S("Sandhya", 1, "19:00", "20:00", 0), S("Sandhya", 3, "21:00", "22:00", 0),
+        S("Ayaana", 1, "20:30", "21:30", 1), S("Ayaana", 0, "09:00", "10:00", 1),
+        S("Vyakhya", 2, "18:00", "19:00", 2), S("Vyakhya", 5, "20:00", "21:00", 2),
+        S("Ananya", 2, "19:00", "20:00", 3), S("Ananya", 5, "18:00", "19:00", 3),
+        S("Nithikraj", 2, "20:00", "21:00", 4), S("Nithikraj", 6, "18:30", "19:30", 4),
+        S("Avani", 2, "21:00", "22:00", 5), S("Avani", 4, "20:00", "21:00", 5),
+        S("Aarav", 3, "17:00", "18:00", 6),
+        S("Samvith", 4, "19:00", "20:00", 7), S("Samvith", 0, "20:30", "21:30", 7),
+        S("Rudri", 6, "21:00", "22:00", 8), S("Rudri", 0, "20:00", "21:00", 8),
+        S("Ashley", 0, "17:30", "18:30", 9),
+      ],
+      routine: [
+        { id: uid(), label: "School & rest", start: "06:00", end: "18:00", days: [1, 2, 3, 4, 5, 6] },
+        { id: uid(), label: "Sleep", start: "06:00", end: "09:00", days: [0] },
+        { id: uid(), label: "Rest time", start: "12:00", end: "17:00", days: [0] },
+      ],
+      settings: { dayStart: "06:00", dayEnd: "22:00", minFree: 30, remindMin: 15, currency: "₹" },
+      fees: {}, payments: [], followups: [], savedAt: 0,
+    };
+  }
+  function normalize(s) {
+    const base = sheetState();
+    if (!s || typeof s !== "object" || !Array.isArray(s.sessions)) return base;
+    let out = {
+      sample: !!s.sample, seed: s.seed || null, offerSheet: !!s.offerSheet,
+      sessions: s.sessions.filter((x) => x && x.start && x.end).map((x) => ({ cancelled: [], place: "", note: "", ...x })),
+      routine: Array.isArray(s.routine) ? s.routine : base.routine,
+      settings: { ...base.settings, ...(s.settings || {}) },
+      fees: s.fees && typeof s.fees === "object" ? s.fees : {},
+      payments: Array.isArray(s.payments) ? s.payments : [],
+      followups: Array.isArray(s.followups) ? s.followups : [],
+      savedAt: s.savedAt || 0,
+    };
+    // Saved before the timetable sheet existed: swap out the sample, or offer the sheet if there's real data.
+    if (!out.seed) {
+      if (out.sample || !out.sessions.length) out = { ...base, fees: out.fees, payments: out.payments, savedAt: out.savedAt, upgraded: true };
+      else Object.assign(out, { seed: "sheet-1", offerSheet: true, upgraded: true });
+    }
+    return out;
+  }
+  let state = (() => { try { const raw = localStorage.getItem(LS); if (raw) return normalize(JSON.parse(raw)); } catch {} return sheetState(); })();
+  let savedView = null; try { savedView = localStorage.getItem(LS_VIEW); } catch {}
+  const view = { day: today(), mode: ["day", "week", "month", "money"].includes(savedView) ? savedView : (window.innerWidth < 700 ? "day" : "week"), review: [], moneyRows: [] };
+  let docRef = null, saveTimer = null, saveChain = Promise.resolve();
+  if (state.upgraded) { delete state.upgraded; persist(); }
+
+  function persist() {
+    state.savedAt = Date.now();
+    try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
+    if (!docRef) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const body = JSON.parse(JSON.stringify(state));
+      saveChain = saveChain.then(() => docRef.set({ state: body })).catch(() => toast("Couldn't save to your account. It's still saved on this device."));
+    }, 600);
+  }
+  function commit(fn, msg) {
+    const before = JSON.stringify(state);
+    fn(state);
+    persist(); render();
+    if (msg) toast(msg, { undo: () => { state = normalize(JSON.parse(before)); persist(); render(); toast("Undone"); } });
+  }
+  const leaveSample = (s) => { if (s.sample) { s.sessions = []; s.sample = false; } };
+
+  // ---------- planning ----------
+  function sessionsOn(d) {
+    const wd = parseYmd(d).getDay();
+    return state.sessions.filter((s) => {
+      if ((s.cancelled || []).includes(d)) return false;
+      if (s.date) return s.date === d;
+      return (s.days || []).includes(wd);
+    });
+  }
+  function plan(d) {
+    const wd = parseYmd(d).getDay(), st = state.settings;
+    const busy = [
+      ...sessionsOn(d).map((s) => ({ kind: "session", s, start: toMin(s.start), end: toMin(s.end) })),
+      ...state.routine.filter((r) => r.days.includes(wd)).map((r) => ({ kind: "routine", r, start: toMin(r.start), end: toMin(r.end) })),
+    ].sort((a, b) => a.start - b.start || a.end - b.end);
+    busy.forEach((it, i) => { it.clash = it.kind === "session" && busy.some((o, j) => j !== i && o.kind === "session" && o.start < it.end && it.start < o.end); });
+    const ds = toMin(st.dayStart), de = toMin(st.dayEnd), minFree = Number(st.minFree) || 30;
+    const free = [];
+    let cur = ds;
+    for (const it of busy) { if (it.start > cur && Math.min(it.start, de) - cur >= minFree) free.push({ start: cur, end: Math.min(it.start, de) }); cur = Math.max(cur, it.end); }
+    if (de - cur >= minFree) free.push({ start: cur, end: de });
+    const sessions = busy.filter((x) => x.kind === "session");
+    return {
+      busy, free, sessions,
+      teach: sessions.reduce((a, x) => a + x.end - x.start, 0),
+      freeMin: free.reduce((a, x) => a + x.end - x.start, 0),
+    };
+  }
+
+  // ---------- render ----------
+  function render() {
+    $("sampleBanner").hidden = !state.offerSheet;
+    document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === view.mode)));
+    renderRange(); renderGlance(); renderFollowups();
+    if (view.mode === "month") renderMonth();
+    else if (view.mode === "money") renderMoney();
+    else renderGrid(view.mode === "day" ? [view.day] : Array.from({ length: 7 }, (_, i) => addDays(mondayOf(view.day), i)));
+    $("hint").textContent = { month: "Tap a day to open it.", money: "Tap a student's name to change their fee or see every payment." }[view.mode] || "Tap an empty spot to add a class. Drag a class to move it. Tap it to see details.";
+  }
+  function renderRange() {
+    const d = parseYmd(view.day);
+    let t;
+    if (view.mode === "day") t = fmtDate(view.day, true);
+    else if (view.mode === "month" || view.mode === "money") t = d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    else {
+      const a = mondayOf(view.day), b = addDays(a, 6), A = parseYmd(a), B = parseYmd(b);
+      t = A.getMonth() === B.getMonth()
+        ? `${A.getDate()} – ${B.getDate()} ${B.toLocaleDateString(undefined, { month: "long", year: "numeric" })}`
+        : `${A.toLocaleDateString(undefined, { day: "numeric", month: "short" })} – ${B.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}`;
+    }
+    $("range").textContent = t;
+  }
+  function renderGlance() {
+    const p = plan(today()), now = nowMin();
+    const h = new Date().getHours();
+    const hello = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+    const current = p.sessions.find((x) => x.start <= now && now < x.end);
+    const next = p.sessions.find((x) => x.start > now);
+    const freeNow = p.free.find((x) => x.start <= now && now < x.end);
+    let msg;
+    if (current) msg = `${hello}! You're teaching ${esc(label(current.s))} until ${fmt12(current.end)}.`;
+    else if (next && freeNow) msg = `${hello}! You're free until ${fmt12(Math.min(freeNow.end, next.start))}. Next is ${esc(label(next.s))} at ${fmt12(next.start)}.`;
+    else if (next) msg = `${hello}! Next is ${esc(label(next.s))} at ${fmt12(next.start)}, in ${dur(next.start - now)}.`;
+    else if (p.sessions.length) msg = `${hello}! All of today's classes are done.`;
+    else msg = `${hello}! No classes today.`;
+    $("glance").innerHTML = `<span class="msg">${msg}</span>
+      <span class="pill">${p.sessions.length} class${p.sessions.length === 1 ? "" : "es"} today</span>
+      ${dayEarnings(today()) ? `<span class="pill">${money(dayEarnings(today()))} today</span>` : ""}
+      <span class="pill free">${dur(p.freeMin) || "0m"} free</span>`;
+  }
+
+  // Things a message asked for that have no agreed time yet.
+  function renderFollowups() {
+    const el = $("followups"), list = state.followups || [];
+    el.hidden = !list.length;
+    if (!list.length) return;
+    el.innerHTML = `<h3>To follow up</h3>` + list.map((f) => `<div class="fu"><span><b>${esc(f.student || "Note")}</b>: ${esc(f.text)}</span><button type="button" class="sm" data-fudone="${esc(f.id)}">Done</button></div>`).join("");
+    el.querySelectorAll("[data-fudone]").forEach((b) => (b.onclick = () => {
+      const f = state.followups.find((x) => x.id === b.dataset.fudone);
+      commit((st) => { st.followups = st.followups.filter((x) => x.id !== b.dataset.fudone); }, `Done: ${f ? f.text : "follow-up"}`);
+    }));
+  }
+
+  // Overlapping classes sit side by side.
+  function lanes(items) {
+    const out = []; let group = [], groupEnd = -1;
+    const flush = () => { const lanesEnd = []; group.forEach((it) => { let l = lanesEnd.findIndex((e) => e <= it.start); if (l < 0) { l = lanesEnd.length; lanesEnd.push(0); } lanesEnd[l] = it.end; it.lane = l; }); group.forEach((it) => { it.lanes = lanesEnd.length; out.push(it); }); group = []; };
+    for (const it of items) { if (it.start >= groupEnd && group.length) flush(); group.push(it); groupEnd = Math.max(groupEnd, it.end); }
+    if (group.length) flush();
+    return out;
+  }
+  function gridBounds(dates) {
+    let lo = toMin(state.settings.dayStart), hi = toMin(state.settings.dayEnd);
+    for (const d of dates) for (const x of plan(d).busy) { lo = Math.min(lo, x.start); hi = Math.max(hi, x.end); }
+    return { lo: Math.floor(lo / 60) * 60, hi: Math.min(24 * 60, Math.ceil(hi / 60) * 60) };
+  }
+  function renderGrid(dates) {
+    const { lo, hi } = gridBounds(dates);
+    const H = (hi - lo) * PPM, t = today(), now = nowMin();
+    const cols = `56px repeat(${dates.length}, minmax(0, 1fr))`;
+    const one = dates.length === 1;
+    let hours = "";
+    for (let m = lo; m <= hi; m += 60) hours += `<span style="top:${(m - lo) * PPM}px">${fmtShort(m).replace(/(\d)([ap])$/, "$1 $2m").toUpperCase()}</span>`;
+    const colHtml = dates.map((d) => {
+      const p = plan(d);
+      let html = p.free.map((f) => `<div class="free-blk" style="top:${(f.start - lo) * PPM + 2}px;height:${(f.end - f.start) * PPM - 4}px">${(f.end - f.start) * PPM >= 26 ? "Free · " + dur(f.end - f.start) : ""}</div>`).join("");
+      html += p.busy.filter((x) => x.kind === "routine").map((x) => `<div class="rt-blk" style="top:${(x.start - lo) * PPM + 1}px;height:${(x.end - x.start) * PPM - 2}px">${esc(x.r.label)}</div>`).join("");
+      html += lanes(p.sessions).map((x) => {
+        const s = x.s, h = (x.end - x.start) * PPM, short = h < 44;
+        const w = 100 / x.lanes;
+        const past = d < t || (d === t && x.end <= now);
+        return `<div class="ev c${colorOf(s)}${short ? " short" : ""}${past ? " past" : ""}${x.clash ? " clash" : ""}" role="button" tabindex="0"
+          data-id="${s.id}" data-day="${d}" aria-label="${esc(label(s))}, ${range12(x.start, x.end)}"
+          style="top:${(x.start - lo) * PPM + 1}px;height:${h - 2}px;left:calc(${w * x.lane}% + 3px);width:calc(${w}% - 6px)">
+          <b>${esc(s.student || s.subject || "Class")}</b>${!short && s.student && s.subject ? `<span>${esc(s.subject)}</span>` : ""}
+          <span class="t">${fmtShort(x.start)}–${fmtShort(x.end)}${one && s.place && !short ? " · " + esc(s.place) : ""}</span></div>`;
+      }).join("");
+      if (d === t && now >= lo && now <= hi) html += `<div class="nowline" style="top:${(now - lo) * PPM}px"></div>`;
+      return `<div class="col${d === t ? " today" : ""}" data-col="${d}" data-lo="${lo}" data-hi="${hi}" style="height:${H}px">${html}</div>`;
+    }).join("");
+    $("cal").innerHTML = `<div class="tg${one ? " one" : ""}"><div class="tg-inner">
+      <div class="tg-head" style="grid-template-columns:${cols}"><span></span>${dates.map((d) => {
+        const D = parseYmd(d);
+        return `<button type="button" class="dh${d === t ? " today" : ""}" data-act="gotoDay" data-day="${d}">${one ? D.toLocaleDateString(undefined, { weekday: "long" }) : DAYS[D.getDay()]}<b>${D.getDate()}</b></button>`;
+      }).join("")}</div>
+      <div class="tg-body" style="grid-template-columns:${cols}"><div class="gutter" style="height:${H}px">${hours}</div>${colHtml}</div>
+    </div></div>`;
+  }
+  function renderMonth() {
+    const d = parseYmd(view.day), first = ymd(new Date(d.getFullYear(), d.getMonth(), 1)), start = mondayOf(first), t = today();
+    const cells = Array.from({ length: 42 }, (_, i) => {
+      const day = addDays(start, i), D = parseYmd(day), ss = plan(day).sessions;
+      return `<button type="button" class="mcell${D.getMonth() !== d.getMonth() ? " out" : ""}${day === t ? " today" : ""}" data-act="gotoDay" data-day="${day}" aria-label="${fmtDate(day, true)}, ${ss.length} classes">
+        <span class="n">${D.getDate()}</span>
+        ${ss.slice(0, 3).map((x) => `<span class="chip c${colorOf(x.s)}">${fmtShort(x.start)} ${esc(x.s.student || x.s.subject)}</span>`).join("")}
+        ${ss.length > 3 ? `<span class="more">+${ss.length - 3} more</span>` : ""}
+        <span class="dots">${ss.map((x) => `<i class="c${colorOf(x.s)}"></i>`).join("")}</span>
+      </button>`;
+    }).join("");
+    $("cal").innerHTML = `<div class="month"><div class="mhead">${[1, 2, 3, 4, 5, 6, 0].map((i) => `<span>${DAYS[i]}</span>`).join("")}</div><div class="mgrid">${cells}</div></div>`;
+  }
+
+  // ---------- money ----------
+  const money = (n) => (state.settings.currency || "₹") + Math.round(Number(n) || 0).toLocaleString("en-IN");
+  const ymOf = (d) => d.slice(0, 7);
+  const perText = (p) => (p === "hour" ? "an hour" : p === "class" ? "a class" : "a month");
+  const FEE_OPTIONS = (sel) => [["hour", "an hour"], ["class", "a class"], ["month", "a month"]].map(([v, t]) => `<option value="${v}" ${v === sel ? "selected" : ""}>${t}</option>`).join("");
+  // What today's (or any day's) classes earn, from per-hour and per-class fees.
+  function dayEarnings(d) {
+    return plan(d).sessions.reduce((sum, x) => {
+      const f = state.fees[x.s.student];
+      if (!f) return sum;
+      const amt = Number(f.amount) || 0;
+      return sum + (f.per === "hour" ? ((x.end - x.start) / 60) * amt : f.per === "class" ? amt : 0);
+    }, 0);
+  }
+  const monthName = (ym) => parseYmd(ym + "-01").toLocaleDateString(undefined, { month: "long" });
+  function moneyRows(ym) {
+    const [y, m] = ym.split("-").map(Number), n = new Date(y, m, 0).getDate(), t = today();
+    const counts = {};
+    for (let i = 1; i <= n; i++) {
+      const d = `${ym}-${pad(i)}`;
+      for (const s of sessionsOn(d)) {
+        if (!s.student) continue;
+        const c = counts[s.student] || (counts[s.student] = { sched: 0, held: 0, schedMin: 0, heldMin: 0, color: colorOf(s) });
+        const len = toMin(s.end) - toMin(s.start);
+        c.sched++; c.schedMin += len;
+        if (d <= t) { c.held++; c.heldMin += len; }
+      }
+    }
+    const pays = state.payments.filter((p) => p.month === ym);
+    const names = [...new Set([...Object.keys(counts), ...pays.map((p) => p.student)])].sort((a, b) => a.localeCompare(b));
+    return names.map((name) => {
+      const c = counts[name] || { sched: 0, held: 0, schedMin: 0, heldMin: 0, color: colorOf({ student: name }) };
+      const fee = state.fees[name];
+      const amt = Number(fee?.amount) || 0, per = fee?.per || "month";
+      // Monthly fees are due for any month with classes; per-class and per-hour fees for the classes already taken.
+      const expected = per === "class" ? c.sched * amt : per === "hour" ? Math.round((c.schedMin / 60) * amt) : c.sched ? amt : 0;
+      const dueNow = per === "class" ? c.held * amt : per === "hour" ? Math.round((c.heldMin / 60) * amt) : expected;
+      const paid = pays.filter((p) => p.student === name).reduce((a, p) => a + Number(p.amount || 0), 0);
+      const balance = Math.max(0, dueNow - paid);
+      const status = !fee ? "unset" : balance > 0 ? (paid > 0 ? "part" : "due") : paid > 0 ? "paid" : "none";
+      return { name, ...c, fee, amt, per, expected, dueNow, paid, balance, status };
+    });
+  }
+  function renderMoney() {
+    const ym = ymOf(view.day), rows = moneyRows(ym), mn = monthName(ym);
+    view.moneyRows = rows;
+    const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
+    const unset = rows.filter((r) => r.status === "unset").length;
+    const pays = state.payments.filter((p) => p.month === ym).sort((a, b) => b.date.localeCompare(a.date));
+    $("cal").innerHTML = `<div class="money">
+      <div class="tiles">
+        <div class="tile good"><span class="k">Collected for ${mn}</span><span class="v">${money(sum("paid"))}</span></div>
+        <div class="tile due"><span class="k">Still to collect</span><span class="v">${money(sum("balance"))}</span></div>
+        <div class="tile"><span class="k">Expected for ${mn}</span><span class="v">${money(sum("expected"))}</span></div>
+      </div>
+      ${unset ? `<div class="banner">Type each student's fee below once. After that, totals and dues fill in by themselves.</div>` : ""}
+      <div class="mlist">${rows.length ? rows.map(moneyRow(mn)).join("") : `<p class="muted" style="padding:12px">No classes in ${mn}.</p>`}</div>
+      <h2>Payments for ${mn}</h2>
+      <div class="mlist">${pays.length ? pays.map((p) => `<div class="lrow"><div><b>${esc(p.student)}</b> <span class="muted small">${fmtDate(p.date)} · ${esc(p.method || "Cash")}</span></div>
+        <div class="row"><span class="amt">${money(p.amount)}</span><button type="button" class="plain danger sm" data-pdel="${esc(p.id)}">Delete</button></div></div>`).join("")
+        : `<p class="muted small" style="padding:10px 12px">No payments yet. Tap “Mark paid” when a parent pays.</p>`}</div>
+    </div>`;
+  }
+  const moneyRow = (mn) => (r, i) => {
+    const pill = { paid: "Paid", part: "Part paid", due: "Due", unset: "No fee set", none: "Nothing due yet" }[r.status];
+    const cls = { paid: "paid", part: "part", due: "due", unset: "unset", none: "unset" }[r.status];
+    const classes = `${r.sched} class${r.sched === 1 ? "" : "es"}${r.held < r.sched ? ` (${r.held} done)` : ""}`;
+    const feeText = r.fee ? `${money(r.amt)} ${perText(r.per)}` : "";
+    const detail = r.per === "class" ? ` (${r.held} class${r.held === 1 ? "" : "es"})` : r.per === "hour" ? ` (${dur(r.heldMin)} of classes)` : "";
+    const msg = `Hello! A gentle reminder that ${r.name}'s tuition fee for ${mn} is ${money(r.balance)}${detail}. Thank you!`;
+    let acts = "";
+    if (!r.fee) acts = `<span class="feeset"><input type="number" min="0" inputmode="numeric" id="fee-${i}" placeholder="Fee" aria-label="Fee for ${esc(r.name)}">
+        <select id="per-${i}" aria-label="How the fee is charged">${FEE_OPTIONS("hour")}</select>
+        <button type="button" class="soft sm" data-feeset="${i}">Save</button></span>`;
+    else if (r.balance > 0) acts = `<button type="button" class="primary sm" data-markpaid="${i}">Mark ${money(r.balance)} paid</button>
+        <a class="btn sm" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Remind on WhatsApp</a>`;
+    return `<div class="mrow c${r.color}">
+      <span class="dot"></span>
+      <div><button type="button" class="name" data-student="${i}">${esc(r.name)}</button>
+        <div class="sub">${classes}${feeText ? " · " + feeText : ""}${r.paid ? ` · paid ${money(r.paid)}` : ""}${r.balance ? ` · <b style="color:var(--warn)">${money(r.balance)} to collect</b>` : ""}</div></div>
+      <span class="status-pill ${cls}">${pill}</span>
+      <div class="acts">${acts}</div>
+    </div>`;
+  };
+  function addPayment(st, student, amount, date, month, method) {
+    st.payments.push({ id: uid(), student, amount: Math.round(amount), date, month, method: method || "Cash" });
+  }
+  $("cal").addEventListener("click", (e) => {
+    if (view.mode !== "money") return;
+    const b = e.target.closest("[data-feeset], [data-markpaid], [data-student], [data-pdel]");
+    if (!b) return;
+    const ym = ymOf(view.day), r = view.moneyRows[Number(b.dataset.feeset ?? b.dataset.markpaid ?? b.dataset.student)];
+    if (b.dataset.pdel) {
+      const p = state.payments.find((x) => x.id === b.dataset.pdel);
+      if (p) commit((st) => { st.payments = st.payments.filter((x) => x.id !== p.id); }, `Deleted ${money(p.amount)} from ${p.student}`);
+    } else if (b.dataset.feeset !== undefined && r) {
+      const v = Number($("fee-" + b.dataset.feeset).value), per = $("per-" + b.dataset.feeset).value;
+      if (!(v > 0)) return toast("Type the fee amount first.");
+      commit((st) => { st.fees[r.name] = { amount: v, per }; }, `${r.name}: ${money(v)} ${perText(per)}`);
+    } else if (b.dataset.markpaid !== undefined && r) {
+      const date = ym === ymOf(today()) ? today() : ym < ymOf(today()) ? `${ym}-${pad(new Date(+ym.slice(0, 4), +ym.slice(5), 0).getDate())}` : today();
+      commit((st) => addPayment(st, r.name, r.balance, date, ym, "Cash"), `${r.name}: ${money(r.balance)} marked paid`);
+    } else if (b.dataset.student !== undefined && r) openStudent(r.name);
+  });
+  function openStudent(name) {
+    const fee = state.fees[name] || { amount: "", per: "month" };
+    const ym = ymOf(view.day);
+    const pays = state.payments.filter((p) => p.student === name).sort((a, b) => b.date.localeCompare(a.date));
+    const total = pays.reduce((a, p) => a + Number(p.amount || 0), 0);
+    const slots = state.sessions.filter((s) => s.student === name && !s.date).map((s) => `${daysText(s.days).replace("Every ", "")} ${range12(s.start, s.end)}`);
+    const months = Array.from({ length: 9 }, (_, i) => { const d = parseYmd(ym + "-01"); d.setMonth(d.getMonth() - 6 + i); return ymOf(ymd(d)); });
+    openSheet(`${sheetHead(esc(name))}
+      ${slots.length ? `<p class="muted small">${slots.map(esc).join(" · ")}</p>` : ""}
+      <div class="fields">
+        <label class="field" for="sf-amt"><span>Fee</span><input type="number" min="0" inputmode="numeric" id="sf-amt" value="${esc(fee.amount)}" placeholder="2000"></label>
+        <label class="field" for="sf-per"><span>Charged</span><select id="sf-per">${FEE_OPTIONS(fee.per || "hour")}</select></label>
+      </div>
+      <div class="row"><button type="button" class="soft" id="sf-save">Save fee</button></div>
+      <h3>Add a payment</h3>
+      <div class="fields">
+        <label class="field" for="sp-amt"><span>Amount</span><input type="number" min="0" inputmode="numeric" id="sp-amt"></label>
+        <label class="field" for="sp-month"><span>For</span><select id="sp-month">${months.map((m) => `<option value="${m}" ${m === ym ? "selected" : ""}>${parseYmd(m + "-01").toLocaleDateString(undefined, { month: "long", year: "numeric" })}</option>`).join("")}</select></label>
+        <label class="field" for="sp-date"><span>Paid on</span><input type="date" id="sp-date" value="${today()}"></label>
+        <label class="field" for="sp-method"><span>How</span><select id="sp-method">${["Cash", "UPI", "Bank transfer", "Cheque"].map((m) => `<option>${m}</option>`).join("")}</select></label>
+      </div>
+      <p class="err-text" id="sp-err" hidden></p>
+      <div class="row"><button type="button" class="primary" id="sp-add">Add payment</button></div>
+      <h3>All payments · ${money(total)}</h3>
+      <div class="list">${pays.length ? pays.map((p) => `<div class="lrow"><div><b class="amt">${money(p.amount)}</b> <span class="muted small">for ${monthName(p.month)} · ${fmtDate(p.date)} · ${esc(p.method || "Cash")}</span></div><button type="button" class="plain danger sm" data-spdel="${esc(p.id)}">Delete</button></div>`).join("") : `<p class="muted small">No payments yet.</p>`}</div>`);
+    $("sf-save").onclick = () => {
+      const v = Number($("sf-amt").value);
+      if (!(v > 0)) return toast("Type the fee amount first.");
+      commit((st) => { st.fees[name] = { amount: v, per: $("sf-per").value }; }, `${name}'s fee saved`);
+      openStudent(name);
+    };
+    $("sp-add").onclick = () => {
+      const v = Number($("sp-amt").value), date = $("sp-date").value;
+      if (!(v > 0)) { $("sp-err").textContent = "Type how much was paid."; $("sp-err").hidden = false; return; }
+      if (!date) { $("sp-err").textContent = "Pick the date it was paid."; $("sp-err").hidden = false; return; }
+      commit((st) => addPayment(st, name, v, date, $("sp-month").value, $("sp-method").value), `${money(v)} from ${name} added`);
+      openStudent(name);
+    };
+    $("sheet").querySelectorAll("[data-spdel]").forEach((b) => (b.onclick = () => {
+      commit((st) => { st.payments = st.payments.filter((x) => x.id !== b.dataset.spdel); }, "Payment deleted");
+      openStudent(name);
+    }));
+  }
+
+  // ---------- navigation ----------
+  function setMode(m) { view.mode = m; try { localStorage.setItem(LS_VIEW, m); } catch {} closePop(); render(); }
+  document.querySelectorAll("[data-view]").forEach((b) => (b.onclick = () => setMode(b.dataset.view)));
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-act]");
+    if (!b) return;
+    const act = b.dataset.act;
+    const step = view.mode === "day" ? 1 : 7;
+    if (act === "prev" || act === "next") {
+      const dir = act === "prev" ? -1 : 1;
+      if (view.mode === "month" || view.mode === "money") { const d = parseYmd(view.day); view.day = ymd(new Date(d.getFullYear(), d.getMonth() + dir, 1)); }
+      else view.day = addDays(view.day, dir * step);
+    } else if (act === "today") view.day = today();
+    else if (act === "gotoDay") { view.day = b.dataset.day; return setMode("day"); }
+    else return;
+    closePop(); render();
+  });
+  $("glance").onclick = () => { view.day = today(); if (view.mode === "month") setMode("day"); else render(); };
+  $("loadSheet").onclick = () => commit((st) => {
+    const b = sheetState();
+    Object.assign(st, { sessions: b.sessions, routine: b.routine, sample: false, offerSheet: false });
+    st.settings.dayStart = b.settings.dayStart; st.settings.dayEnd = b.settings.dayEnd;
+  }, "Your timetable is loaded");
+  $("keepMine").onclick = () => commit((st) => { st.offerSheet = false; });
+
+  // ---------- grid interaction: tap to add, tap to open, drag to move ----------
+  let drag = null, suppressClick = false;
+  $("cal").addEventListener("pointerdown", (e) => {
+    const el = e.target.closest(".ev");
+    if (!el || e.button !== 0) return;
+    const s = state.sessions.find((x) => x.id === el.dataset.id);
+    if (!s) return;
+    const col = el.parentElement;
+    drag = { el, s, day: el.dataset.day, x0: e.clientX, y0: e.clientY, top0: parseFloat(el.style.top), lo: Number(col.dataset.lo), hi: Number(col.dataset.hi), moved: false, pid: e.pointerId, newDay: el.dataset.day, newStart: toMin(s.start) };
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    if (!drag.moved) {
+      if (Math.hypot(dx, dy) < 6) return;
+      drag.moved = true; closePop();
+      drag.el.classList.add("dragging");
+      drag.el.style.left = "3px"; drag.el.style.width = "calc(100% - 6px)";
+      try { drag.el.setPointerCapture(drag.pid); } catch {}
+    }
+    e.preventDefault();
+    const len = toMin(drag.s.end) - toMin(drag.s.start);
+    let start = drag.lo + Math.round((drag.top0 + dy) / PPM / 15) * 15;
+    start = Math.max(drag.lo, Math.min(drag.hi - len, start));
+    drag.el.style.top = (start - drag.lo) * PPM + 1 + "px";
+    const col = [...$("cal").querySelectorAll(".col")].find((c) => { const r = c.getBoundingClientRect(); return e.clientX >= r.left && e.clientX < r.right; });
+    if (col && col !== drag.el.parentElement) col.append(drag.el);
+    drag.newDay = drag.el.parentElement.dataset.col; drag.newStart = start;
+    const t = drag.el.querySelector(".t"); if (t) t.textContent = `${fmtShort(start)}–${fmtShort(start + len)}`;
+  });
+  const endDrag = (e) => {
+    if (!drag) return;
+    const d = drag; drag = null;
+    if (!d.moved) { if (e.type === "pointerup") openPop(d.s, d.day, d.el); return; }
+    suppressClick = true; setTimeout(() => (suppressClick = false), 50);
+    finishMove(d);
+  };
+  window.addEventListener("pointerup", endDrag);
+  window.addEventListener("pointercancel", () => { if (drag) { drag = null; render(); } });
+  $("cal").addEventListener("keydown", (e) => {
+    const el = e.target.closest(".ev");
+    if (el && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); const s = state.sessions.find((x) => x.id === el.dataset.id); if (s) openPop(s, el.dataset.day, el); }
+  });
+  $("cal").addEventListener("click", (e) => {
+    if (suppressClick || e.target.closest(".ev, .rt-blk, [data-act]")) return;
+    const col = e.target.closest(".col");
+    if (!col) return;
+    const lo = Number(col.dataset.lo), hi = Number(col.dataset.hi);
+    const y = e.clientY - col.getBoundingClientRect().top;
+    const start = Math.max(lo, Math.min(hi - 60, lo + Math.floor(y / PPM / 30) * 30));
+    closePop();
+    openForm({ date: col.dataset.col, start: toHHMM(start) });
+  });
+
+  function finishMove(d) {
+    const s = d.s, len = toMin(s.end) - toMin(s.start);
+    const ns = toHHMM(d.newStart), ne = toHHMM(d.newStart + len);
+    if (d.newDay === d.day && ns === s.start) return render();
+    const when = `${fmtDate(d.newDay)}, ${fmt12(ns)}`;
+    if (s.date) return commit((st) => { const x = st.sessions.find((y) => y.id === s.id); Object.assign(x, { date: d.newDay, start: ns, end: ne }); }, `${label(s)} moved to ${when}`);
+    render();
+    const ref = $("cal").querySelector(`.ev[data-id="${s.id}"][data-day="${d.day}"]`);
+    showPop(`<div class="ph c${colorOf(s)}"><h3>Move ${esc(s.student || "class")}?</h3><span>To ${esc(when)}</span></div>
+      <div class="pb">
+        <button type="button" class="primary" id="mvOnce">Only on ${fmtDate(d.day)}</button>
+        <button type="button" class="soft" id="mvAll">Every week from now</button>
+        <button type="button" class="plain" id="mvNo">Keep it where it was</button>
+      </div>`, ref);
+    $("mvNo").onclick = closePop;
+    $("mvOnce").onclick = () => { closePop(); commit((st) => {
+      const x = st.sessions.find((y) => y.id === s.id);
+      x.cancelled = [...new Set([...(x.cancelled || []), d.day])];
+      st.sessions.push({ ...x, id: uid(), days: null, date: d.newDay, start: ns, end: ne, cancelled: [], note: [x.note, "Moved from " + fmtDate(d.day)].filter(Boolean).join(" · "), color: colorOf(x) });
+    }, `${label(s)} moved to ${when} for that week only`); };
+    $("mvAll").onclick = () => {
+      closePop();
+      const from = parseYmd(d.day).getDay(), to = parseYmd(d.newDay).getDay();
+      const days = [...new Set(s.days.map((w) => (w === from ? to : w)))];
+      commit((st) => { Object.assign(st.sessions.find((y) => y.id === s.id), { days, start: ns, end: ne }); },
+        `${label(s)} is now ${daysText(days).toLowerCase()}, ${fmt12(ns)}`);
+    };
+  }
+
+  // ---------- popover ----------
+  function showPop(html, anchor) {
+    const pop = $("pop");
+    pop.innerHTML = html; pop.hidden = false;
+    const r = anchor ? anchor.getBoundingClientRect() : { left: innerWidth / 2 - 155, right: innerWidth / 2 + 155, top: 120, bottom: 120 };
+    const w = pop.offsetWidth, h = pop.offsetHeight;
+    let left = r.right + 10;
+    if (left + w > innerWidth - 12) left = r.left - w - 10;
+    if (left < 12) left = Math.max(12, Math.min(innerWidth - w - 12, r.left));
+    let top = Math.max(12, Math.min(innerHeight - h - 12, r.top));
+    pop.style.left = left + "px"; pop.style.top = top + "px";
+  }
+  function closePop() { $("pop").hidden = true; }
+  document.addEventListener("pointerdown", (e) => { if (!$("pop").hidden && !e.target.closest("#pop, .ev")) closePop(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closePop(); closeSheet(); } });
+
+  function openPop(s, day, anchor) {
+    const c = colorOf(s);
+    showPop(`<div class="ph c${c}"><h3>${esc(s.student || s.subject || "Class")}</h3><span>${esc(s.student ? s.subject : "")}</span></div>
+      <div class="pb">
+        <div class="facts">
+          <span><b>${fmtDate(day, true)}</b></span>
+          <span>${range12(s.start, s.end)} · ${dur(toMin(s.end) - toMin(s.start))}</span>
+          <span class="muted">${s.date ? "One-time class" : daysText(s.days)}</span>
+          ${s.place ? `<span>${esc(s.place)}</span>` : ""}
+          ${s.note ? `<span class="muted">${esc(s.note)}</span>` : ""}
+          ${state.fees[s.student] ? `<span class="muted">Fee ${money(state.fees[s.student].amount)} ${perText(state.fees[s.student].per)}</span>` : ""}
+        </div>
+        <div class="swatches" aria-label="Colour">${COLORS.map((i) => `<button type="button" class="c${i}" data-color="${i}" aria-pressed="${i === c}" aria-label="Colour ${i + 1}"></button>`).join("")}</div>
+        <div class="row">
+          <button type="button" class="soft" id="pEdit">Edit</button>
+          <button type="button" class="soft danger" id="pSkip">${s.date ? "Delete" : "Cancel this day"}</button>
+          <a class="btn" href="${esc(gcalUrl(s))}" target="_blank" rel="noopener">Phone alert</a>
+        </div>
+        ${s.date ? "" : `<button type="button" class="plain danger" id="pDelAll">Delete all weeks</button>`}
+      </div>`, anchor);
+    $("pop").querySelectorAll("[data-color]").forEach((b) => (b.onclick = () => {
+      const i = Number(b.dataset.color);
+      commit((st) => { st.sessions.forEach((x) => { if (x.id === s.id || (s.student && x.student === s.student)) x.color = i; }); });
+      closePop();
+    }));
+    $("pEdit").onclick = () => { closePop(); openForm(s); };
+    $("pSkip").onclick = () => { closePop(); s.date
+      ? commit((st) => { st.sessions = st.sessions.filter((x) => x.id !== s.id); }, `${label(s)} deleted`)
+      : commit((st) => { const x = st.sessions.find((y) => y.id === s.id); x.cancelled = [...new Set([...(x.cancelled || []), day])]; }, `${label(s)} cancelled on ${fmtDate(day)}`); };
+    const del = $("pDelAll");
+    if (del) del.onclick = () => { closePop(); commit((st) => { st.sessions = st.sessions.filter((x) => x.id !== s.id); }, `${label(s)} deleted from every week`); };
+  }
+
+  function nextDateFor(s) {
+    if (s.date) return s.date;
+    for (let i = 0; i < 7; i++) { const d = addDays(today(), i); if (s.days.includes(parseYmd(d).getDay())) return d; }
+    return today();
+  }
+  function gcalUrl(s) {
+    const d = nextDateFor(s).replace(/-/g, "");
+    const p = new URLSearchParams({
+      action: "TEMPLATE", text: `${label(s)} tuition`,
+      dates: `${d}T${s.start.replace(":", "")}00/${d}T${s.end.replace(":", "")}00`,
+      details: [s.note, "From My Tutoring Calendar"].filter(Boolean).join("\n"), location: s.place || "",
+    });
+    try { p.set("ctz", Intl.DateTimeFormat().resolvedOptions().timeZone); } catch {}
+    if (!s.date) p.set("recur", "RRULE:FREQ=WEEKLY;BYDAY=" + s.days.map((x) => RR[x]).join(","));
+    return "https://calendar.google.com/calendar/render?" + p.toString();
+  }
+
+  // ---------- sheet ----------
+  function openSheet(html) { $("sheet").innerHTML = html; $("scrim").hidden = false; const f = $("sheet").querySelector("input, textarea, button"); f && f.focus(); }
+  function closeSheet() { $("scrim").hidden = true; }
+  $("scrim").addEventListener("click", (e) => { if (e.target === $("scrim")) closeSheet(); });
+  const sheetHead = (title, tabs) => `<div class="sheet-head"><h2 id="sheetTitle">${title}</h2><button type="button" class="plain" data-close>Close</button></div>${tabs || ""}`;
+  $("sheet").addEventListener("click", (e) => { if (e.target.closest("[data-close]")) closeSheet(); });
+  const dayPick = (name, sel) => [1, 2, 3, 4, 5, 6, 0].map((d) => `<label><input type="checkbox" name="${name}" value="${d}" ${sel.includes(d) ? "checked" : ""}><span>${DAYS[d]}</span></label>`).join("");
+  const addTabs = (active) => `<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="wa" aria-selected="${active === "wa"}">Paste from WhatsApp</button><button type="button" role="tab" data-tab="form" aria-selected="${active === "form"}">Type it in</button></div>`;
+
+  $("addBtn").onclick = () => openWhatsApp();
+  $("sheet").addEventListener("click", (e) => {
+    const t = e.target.closest("[data-tab]");
+    if (!t) return;
+    if (t.dataset.tab === "wa") openWhatsApp(); else openForm({ date: view.day, start: "16:00" });
+  });
+
+  function openForm(src) {
+    const existing = src && src.id && state.sessions.some((x) => x.id === src.id);
+    const s = existing ? src : { student: "", subject: "", place: "", note: "", start: src.start || "16:00", end: toHHMM(Math.min(toMin(src.start || "16:00") + 60, 1439)), days: [parseYmd(src.date || view.day).getDay()], date: null, _date: src.date || view.day };
+    const once = !!s.date;
+    const c = existing ? colorOf(s) : null;
+    openSheet(`${sheetHead(existing ? "Edit class" : "Add a class", existing ? "" : addTabs("form"))}
+      <form id="form" class="fields" style="grid-template-columns:1fr;gap:12px">
+        <div class="fields">
+          <label class="field" for="f-student"><span>Student</span><input id="f-student" value="${esc(s.student)}" placeholder="Riya" autocomplete="off"></label>
+          <label class="field" for="f-subject"><span>Subject</span><input id="f-subject" value="${esc(s.subject)}" placeholder="Maths" autocomplete="off"></label>
+        </div>
+        <div class="seg"><label><input type="radio" name="f-kind" id="f-weekly" ${once ? "" : "checked"}><span>Every week</span></label><label><input type="radio" name="f-kind" id="f-once" ${once ? "checked" : ""}><span>Just once</span></label></div>
+        <div class="daypick" id="f-days" ${once ? "hidden" : ""}>${dayPick("f-day", s.days || [])}</div>
+        <div class="fields">
+          <label class="field" for="f-date" id="f-date-wrap" ${once ? "" : "hidden"}><span>Date</span><input type="date" id="f-date" value="${esc(s.date || s._date || view.day)}"></label>
+          <label class="field" for="f-start"><span>From</span><input type="time" id="f-start" value="${esc(s.start)}"></label>
+          <label class="field" for="f-end"><span>To</span><input type="time" id="f-end" value="${esc(s.end)}"></label>
+        </div>
+        <label class="field" for="f-place"><span>Where (optional)</span><input id="f-place" value="${esc(s.place)}" placeholder="Their home, online…"></label>
+        <label class="field" for="f-note"><span>Note (optional)</span><input id="f-note" value="${esc(s.note)}" placeholder="Chapter 4 test"></label>
+        <div class="field"><span>Colour</span><div class="swatches" id="f-colors">${COLORS.map((i) => `<button type="button" class="c${i}" data-fc="${i}" aria-pressed="${i === c}" aria-label="Colour ${i + 1}"></button>`).join("")}</div></div>
+        <p class="err-text" id="f-err" hidden></p>
+        <div class="row"><button type="submit" class="primary">${existing ? "Save" : "Add class"}</button><button type="button" class="plain" data-close>Cancel</button></div>
+      </form>`);
+    let color = c;
+    $("f-colors").onclick = (e) => { const b = e.target.closest("[data-fc]"); if (!b) return; color = Number(b.dataset.fc); $("f-colors").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); };
+    $("form").onchange = (e) => { if (e.target.name === "f-kind") { const o = $("f-once").checked; $("f-days").hidden = o; $("f-date-wrap").hidden = !o; } };
+    $("form").onsubmit = (e) => {
+      e.preventDefault();
+      const o = $("f-once").checked;
+      const days = [...document.querySelectorAll('input[name="f-day"]:checked')].map((x) => Number(x.value));
+      const start = $("f-start").value, end = $("f-end").value, date = $("f-date").value;
+      const err = (m) => { $("f-err").textContent = m; $("f-err").hidden = false; };
+      if (!$("f-student").value.trim() && !$("f-subject").value.trim()) return err("Add a student name or a subject.");
+      if (!start || !end || toMin(end) <= toMin(start)) return err("The end time needs to be after the start time.");
+      if (!o && !days.length) return err("Pick at least one day.");
+      if (o && !date) return err("Pick a date.");
+      const rec = { cancelled: [], ...(existing ? s : {}), id: existing ? s.id : uid(), student: $("f-student").value.trim(), subject: $("f-subject").value.trim(), place: $("f-place").value.trim(), note: $("f-note").value.trim(), start, end, days: o ? null : days, date: o ? date : null };
+      delete rec._date;
+      if (color !== null) rec.color = color; else if (!existing) rec.color = colorOf(rec);
+      closeSheet();
+      commit((st) => { const i = st.sessions.findIndex((x) => x.id === rec.id); if (i >= 0) st.sessions[i] = rec; else { leaveSample(st); st.sessions.push(rec); } }, `${label(rec)} ${existing ? "saved" : "added"}`);
+      if (o) { view.day = date; render(); }
+    };
+  }
+
+  function openWhatsApp(prefill, inboxIds, suggested) {
+    view.inboxOpen = inboxIds || [];
+    openSheet(`${sheetHead("Add classes", addTabs("wa"))}
+      <p class="muted small">Messages from your watched chats arrive by themselves. You can also paste any messages here and the app suggests the classes; double-check the times.</p>
+      <textarea id="inboxText" placeholder="Riya's mom: From this week Riya will come Mon and Wed 4 to 5
+Aarav: No tuition on Thursday, I have a test
+Kabir Papa: Can you take Kabir tomorrow 6:30pm? Science"></textarea>
+      <div class="row">
+        <button type="button" class="primary" id="readBtn">Read messages</button>
+        <label class="btn" for="chatFile">Open exported chat</label>
+        <input type="file" id="chatFile" accept=".txt,text/plain" hidden>
+      </div>
+      <p class="status" id="inboxStatus" aria-live="polite"></p>
+      <div class="review" id="review"></div>
+      <div class="row" id="reviewActions" hidden><button type="button" class="primary" id="applyBtn">Add to my calendar</button></div>
+      <div class="row" id="markReadRow" ${view.inboxOpen.length ? "" : "hidden"}><button type="button" class="plain" id="markRead">Nothing to change, mark these messages as read</button></div>`);
+    $("readBtn").onclick = readMessages;
+    $("applyBtn").onclick = applyReview;
+    $("markRead").onclick = () => { clearInbox(view.inboxOpen); view.inboxOpen = []; closeSheet(); toast("Messages marked as read"); };
+    if (prefill) {
+      $("inboxText").value = prefill;
+      const items = (suggested || []).map(cleanItem).filter(Boolean);
+      if (items.length) showReview(items, "Suggested by your Mac from these WhatsApp messages.");
+      else if (suggested) showReview([], "Your Mac found nothing to change in these messages.");
+      else readMessages();
+    }
+    $("chatFile").onchange = () => {
+      const f = $("chatFile").files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = () => { const lines = String(r.result).split(/\n/); $("inboxText").value = lines.slice(-400).join("\n"); $("inboxStatus").textContent = `Loaded the last ${Math.min(lines.length, 400)} messages from ${f.name}. Tap Read messages.`; };
+      r.readAsText(f);
+    };
+  }
+
+  $("settingsBtn").onclick = openSettings;
+  function openSettings() {
+    const st = state.settings;
+    openSheet(`${sheetHead("Settings")}
+      <div class="fields">
+        <label class="field" for="s-start"><span>My day starts</span><input type="time" id="s-start" value="${st.dayStart}"></label>
+        <label class="field" for="s-end"><span>My day ends</span><input type="time" id="s-end" value="${st.dayEnd}"></label>
+      </div>
+      <div class="fields">
+        <label class="field" for="s-free"><span>Show free time from</span><select id="s-free">${[15, 30, 45, 60].map((v) => `<option value="${v}" ${v == st.minFree ? "selected" : ""}>${dur(v)}</option>`).join("")}</select></label>
+        <label class="field" for="s-remind"><span>Remind me before class</span><select id="s-remind">${[5, 10, 15, 30, 60].map((v) => `<option value="${v}" ${v == st.remindMin ? "selected" : ""}>${dur(v)}</option>`).join("")}</select></label>
+        <label class="field" for="s-cur"><span>Currency</span><select id="s-cur">${["₹", "$", "£", "€", "AED "].map((c) => `<option value="${c}" ${c === st.currency ? "selected" : ""}>${c.trim()}</option>`).join("")}</select></label>
+      </div>
+      <h3>Fixed routine</h3>
+      <p class="muted small">Meals, college or your own study. These aren't counted as free time.</p>
+      <div class="list" id="rlist"></div>
+      <div class="fields">
+        <label class="field" for="r-label"><span>What</span><input id="r-label" placeholder="Lunch"></label>
+        <label class="field" for="r-start"><span>From</span><input type="time" id="r-start" value="13:00"></label>
+        <label class="field" for="r-end"><span>To</span><input type="time" id="r-end" value="14:00"></label>
+      </div>
+      <div class="daypick">${dayPick("r-day", [0, 1, 2, 3, 4, 5, 6])}</div>
+      <p class="err-text" id="r-err" hidden></p>
+      <div class="row"><button type="button" class="soft" id="r-add">Add to routine</button></div>
+      <h3>WhatsApp chats</h3>
+      <p class="muted small">Your Mac checks these chats every 10 minutes and sends class messages to your inbox. Changes here apply at the next check.</p>
+      <div class="list" id="wa-list"></div>
+      <div class="fields">
+        <label class="field" for="wa-add"><span>Add a chat</span><input id="wa-add" list="wa-names" placeholder="Type or pick a chat name" autocomplete="off"></label>
+      </div>
+      <datalist id="wa-names"></datalist>
+      <div class="row"><button type="button" class="soft" id="wa-addbtn">Add chat</button></div>
+      <p class="status" id="wa-status" aria-live="polite"></p>
+      <h3>Account</h3>
+      <div class="row"><span class="muted small" id="acct-email"></span><button type="button" class="plain danger" id="signOut">Sign out</button></div>`);
+    drawWa();
+    try { $("acct-email").textContent = firebase.auth().currentUser?.email ? "Signed in as " + firebase.auth().currentUser.email : "Not signed in"; } catch { $("acct-email").textContent = "Not signed in"; }
+    $("signOut").onclick = () => { closeSheet(); window.tutoringSignOut?.(); };
+    $("wa-list").onclick = (e) => {
+      const b = e.target.closest("[data-wadel]");
+      if (b) saveWaChats(waConfig.chats.filter((c) => c !== b.dataset.wadel), `Stopped watching ${b.dataset.wadel}`);
+    };
+    $("wa-addbtn").onclick = () => {
+      const name = $("wa-add").value.trim();
+      if (!name) { $("wa-status").textContent = "Type or pick a chat name first."; return; }
+      if (waConfig.chats.includes(name)) { $("wa-status").textContent = `${name} is already on the list.`; return; }
+      $("wa-add").value = "";
+      saveWaChats([...waConfig.chats, name], `Now watching ${name}`);
+    };
+    const drawRoutine = () => {
+      $("rlist").innerHTML = state.routine.length ? state.routine.slice().sort((a, b) => toMin(a.start) - toMin(b.start)).map((r) => `<div class="lrow"><div><b>${esc(r.label)}</b> <span class="muted small">${range12(r.start, r.end)} · ${daysText(r.days)}</span></div><button type="button" class="plain danger" data-rdel="${r.id}">Remove</button></div>`).join("") : `<p class="muted small">Nothing yet.</p>`;
+    };
+    drawRoutine();
+    $("rlist").onclick = (e) => { const b = e.target.closest("[data-rdel]"); if (!b) return; commit((s) => { s.routine = s.routine.filter((r) => r.id !== b.dataset.rdel); }, "Removed from routine"); drawRoutine(); };
+    const setTime = (k, el) => () => {
+      const v = el.value; if (!v) return;
+      const ds = k === "dayStart" ? v : state.settings.dayStart, de = k === "dayEnd" ? v : state.settings.dayEnd;
+      if (toMin(de) <= toMin(ds)) { toast("Your day has to end after it starts."); el.value = state.settings[k]; return; }
+      commit((s) => { s.settings[k] = v; });
+    };
+    $("s-start").onchange = setTime("dayStart", $("s-start"));
+    $("s-end").onchange = setTime("dayEnd", $("s-end"));
+    $("s-free").onchange = () => commit((s) => { s.settings.minFree = Number($("s-free").value); });
+    $("s-remind").onchange = () => commit((s) => { s.settings.remindMin = Number($("s-remind").value); });
+    $("s-cur").onchange = () => commit((s) => { s.settings.currency = $("s-cur").value; });
+    $("r-add").onclick = () => {
+      const lab = $("r-label").value.trim(), a = $("r-start").value, b = $("r-end").value;
+      const days = [...document.querySelectorAll('input[name="r-day"]:checked')].map((x) => Number(x.value));
+      const err = (m) => { $("r-err").textContent = m; $("r-err").hidden = false; };
+      if (!lab) return err("Give it a name, like Lunch.");
+      if (!a || !b || toMin(b) <= toMin(a)) return err("The end time needs to be after the start time.");
+      if (!days.length) return err("Pick at least one day.");
+      $("r-err").hidden = true; $("r-label").value = "";
+      commit((s) => { s.routine.push({ id: uid(), label: lab, start: a, end: b, days }); }, `${lab} added`);
+      drawRoutine();
+    };
+  }
+
+  // ---------- toasts & reminders ----------
+  function toast(msg, opt = {}) {
+    const el = document.createElement("div");
+    el.className = "toast" + (opt.alert ? " alert" : "");
+    const p = document.createElement("p"); p.textContent = msg; el.append(p);
+    if (opt.undo) { const b = document.createElement("button"); b.type = "button"; b.textContent = "Undo"; b.onclick = () => { el.remove(); opt.undo(); }; el.append(b); }
+    const x = document.createElement("button"); x.type = "button"; x.textContent = opt.alert ? "Got it" : "×"; x.setAttribute("aria-label", "Dismiss"); x.onclick = () => el.remove(); el.append(x);
+    $("toasts").append(el);
+    if (!opt.alert) setTimeout(() => el.remove(), 6000);
+  }
+  let audioCtx = null;
+  function chime() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = audioCtx.currentTime;
+      [784, 1047, 1319].forEach((f, i) => {
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.frequency.value = f; o.type = "sine";
+        g.gain.setValueAtTime(0.0001, t + i * 0.18); g.gain.exponentialRampToValueAtTime(0.2, t + i * 0.18 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.18 + 0.6);
+        o.connect(g).connect(audioCtx.destination); o.start(t + i * 0.18); o.stop(t + i * 0.18 + 0.65);
+      });
+    } catch {}
+  }
+  function alertNow(msg) {
+    chime(); toast(msg, { alert: true });
+    try { if (window.Notification && Notification.permission === "granted") new Notification("My Tutoring Calendar", { body: msg }); } catch {}
+  }
+  let alertsOn = false;
+  try { alertsOn = localStorage.getItem(LS_ALERTS) === "1"; } catch {}
+  $("bellBtn").setAttribute("aria-pressed", String(alertsOn));
+  $("bellBtn").onclick = async () => {
+    alertsOn = !alertsOn;
+    $("bellBtn").setAttribute("aria-pressed", String(alertsOn));
+    try { localStorage.setItem(LS_ALERTS, alertsOn ? "1" : "0"); } catch {}
+    if (alertsOn) {
+      chime();
+      try { if (window.Notification && Notification.permission === "default") await Notification.requestPermission(); } catch {}
+      toast(`Reminders on: a chime ${dur(Number(state.settings.remindMin) || 15)} before each class and when free time starts, while this page is open. For alerts on your phone, tap a class and choose Phone alert.`);
+    } else toast("Reminders off");
+  };
+
+  const fired = new Set();
+  let lastDay = today();
+  function tick() {
+    const d = today();
+    if (d !== lastDay) { if (view.day === lastDay) view.day = d; lastDay = d; }
+    renderGlance();
+    if (!drag && $("pop").hidden && (view.mode === "day" || view.mode === "week")) render();
+    if (!alertsOn || state.sample) return;
+    const now = nowMin(), p = plan(d), before = Number(state.settings.remindMin) || 15;
+    for (const x of p.sessions) {
+      const k1 = `${d}|${x.s.id}|pre`, k2 = `${d}|${x.s.id}|start`;
+      if (now >= x.start - before && now < x.start && !fired.has(k1)) { fired.add(k1); alertNow(`${label(x.s)} at ${fmt12(x.start)}, in ${dur(x.start - now)}${x.s.place ? " · " + x.s.place : ""}`); }
+      if (now >= x.start && now < x.start + 2 && !fired.has(k2)) { fired.add(k2); fired.add(k1); alertNow(`Time for ${label(x.s)}${x.s.place ? " · " + x.s.place : ""}`); }
+    }
+    for (const f of p.free) {
+      const k = `${d}|free|${f.start}`;
+      if (now >= f.start && now < f.start + 2 && !fired.has(k)) { fired.add(k); alertNow(`You're free until ${fmt12(f.end)} (${dur(f.end - f.start)}). Enjoy!`); }
+    }
+  }
+  setInterval(tick, 30000);
+
+  // ---------- reading WhatsApp messages ----------
+  let sampleFn = null;
+  const str = (x) => (typeof x === "string" ? x.trim().slice(0, 80) : "");
+  const isHHMM = (x) => { if (typeof x !== "string" || !/^\d{1,2}:\d{2}$/.test(x)) return null; const [h, m] = x.split(":").map(Number); return h < 24 && m < 60 ? `${pad(h)}:${pad(m)}` : null; };
+  const isDate = (x) => (typeof x === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : null);
+  const endOr = (start, end) => (end && toMin(end) > toMin(start) ? end : toHHMM(Math.min(toMin(start) + 60, 23 * 60 + 59)));
+
+  function cleanItem(it) {
+    if (!it || typeof it !== "object") return null;
+    if (it.action === "add") {
+      const start = isHHMM(it.start); if (!start) return null;
+      const days = Array.isArray(it.days) ? [...new Set(it.days.map(Number).filter((n) => n >= 0 && n <= 6))] : [];
+      const weekly = !!it.weekly && days.length > 0, date = isDate(it.date);
+      if (!weekly && !date) return null;
+      return { action: "add", student: str(it.student), subject: str(it.subject), days: weekly ? days : null, date: weekly ? null : date, start, end: endOr(start, isHHMM(it.end)), place: str(it.place), note: str(it.note), quote: str(it.quote) };
+    }
+    if (it.action === "followup") {
+      const text = typeof it.text === "string" ? it.text.trim().slice(0, 160) : "";
+      return text ? { action: "followup", student: str(it.student), text, quote: str(it.quote) } : null;
+    }
+    const s = state.sessions.find((x) => x.id === it.sessionId);
+    if (it.action === "cancel" && s && isDate(it.date)) return { action: "cancel", sessionId: s.id, date: it.date, quote: str(it.quote) };
+    if (it.action === "move" && s && isDate(it.newDate) && isHHMM(it.start)) {
+      const start = isHHMM(it.start);
+      return { action: "move", sessionId: s.id, date: isDate(it.date), newDate: it.newDate, start, end: endOr(start, isHHMM(it.end)), quote: str(it.quote) };
+    }
+    return null;
+  }
+  function describe(it) {
+    if (it.action === "add") return `<b>${esc(label(it))}</b><br>${it.date ? fmtDate(it.date) : daysText(it.days)}, ${range12(it.start, it.end)}${it.place ? " · " + esc(it.place) : ""}${it.note ? ` <span class="muted">(${esc(it.note)})</span>` : ""}`;
+    if (it.action === "followup") return `<b>${esc(it.student || "Note")}</b>: ${esc(it.text)}`;
+    const s = state.sessions.find((x) => x.id === it.sessionId);
+    if (it.action === "cancel") return `<b>${esc(label(s))}</b> on ${fmtDate(it.date)}`;
+    return `<b>${esc(label(s))}</b>${it.date ? " from " + fmtDate(it.date) : ""} to ${fmtDate(it.newDate)}, ${range12(it.start, it.end)}`;
+  }
+
+  async function readWithClaude(text) {
+    const t = today();
+    const list = state.sample ? [] : state.sessions.map((s) => `${s.id} | ${s.student} | ${s.subject} | ${s.date ? s.date : daysText(s.days)} ${s.start}-${s.end}`);
+    const prompt = `You read WhatsApp messages sent to a private home tutor and turn them into schedule changes.
+Today is ${DAYS[new Date().getDay()]} ${t} (YYYY-MM-DD). Day numbers: 0=Sunday, 1=Monday ... 6=Saturday.
+
+The tutor's existing sessions (id | student | subject | when):
+${list.join("\n") || "(none yet)"}
+
+Messages:
+"""
+${text.slice(0, 60000)}
+"""
+
+Reply with only JSON in this shape: {"items":[ ... ]}. Each item is one of:
+{"action":"add","student":"name","subject":"subject or empty","weekly":true|false,"days":[day numbers] (weekly only),"date":"YYYY-MM-DD" (one-time only),"start":"HH:MM","end":"HH:MM","place":"","note":"","quote":"the few words of the message this came from"}
+{"action":"cancel","sessionId":"id from the list","date":"YYYY-MM-DD","quote":"..."}
+{"action":"move","sessionId":"id from the list","date":"YYYY-MM-DD the original day","newDate":"YYYY-MM-DD","start":"HH:MM","end":"HH:MM","quote":"..."}
+{"action":"followup","student":"name","text":"what the tutor still needs to do, in a few words","quote":"..."}
+
+How to read the chats:
+- A chat's name usually contains the student's name. For example, "QFS MYP5 Chem Ayaana Sunil Bhalla 1-1 M/J 2027" is Ayaana's chat and "QFS MYP5 Chemistry Nithikraj Jagan 1-1 M/J 2027" is Nithikraj's. "TYCHR-Aayushi" is a coordinator who arranges classes for several students, so the message itself names the student. The chat "Devi" is the student Dev; it is also a personal chat, so only use messages that are clearly about Dev's classes. "Someone in the group" is a parent, the student or a coordinator.
+- Holiday notices from the company, such as "no regular classes on 8th and 9th November", apply to the student whose chat they appear in, and to any student they name. Add a "cancel" for each of that student's regular weekly sessions that falls on those dates. The same notice is often posted in several chats; give each affected student their own cancels. Never cancel a one-time session (one with a date in the list) because of a holiday notice: those are extra classes the tutor agreed to separately, often on the holiday itself.
+- An "extra", "make-up" or "compensation" class is a one-time "add" on top of the regular timetable, at the time agreed in the conversation (the tutor's own replies, marked "Me", count as agreement). Splitting one class into two slots means two one-time adds, plus a cancel of the regular class that day if there is one.
+- When someone asks for something that has no agreed date and time yet, add a "followup" instead of guessing. Examples: "can we plan the extra classes we missed", "please reschedule Vyakhya's classes", "send the notes".
+
+Rules:
+- Use 24-hour times. Tuition usually happens between 7:00 and 21:30, so "4 to 5" means 16:00-17:00.
+- Resolve "today", "tomorrow", "Monday", "next week" against the date the message was sent when it is shown in [brackets], otherwise against today's date. Ignore changes for dates already in the past.
+- Lines from "Me" are the tutor's own replies: use them to confirm or correct what a parent asked.
+- "From this week", "every", "daily", or a list of weekdays without a date means a weekly session.
+- If only a start time is given, assume 1 hour and put "assumed 1 hour" in note.
+- The student is usually the person named in the message or the sender (drop words like Mom, Papa, Mummy, Aunty, Uncle from a parent's name).
+- A cancel or move must match an existing session by student. If none matches, skip the cancel; turn a move into an "add".
+- Ignore greetings, fees, payments, homework talk and anything that is not about class timing.
+- If nothing in the messages changes the schedule, reply {"items":[]}.`;
+    const res = await sampleFn.json(prompt, { modelTier: "default" });
+    const arr = Array.isArray(res) ? res : res && Array.isArray(res.items) ? res.items : [];
+    return arr.map(cleanItem).filter(Boolean);
+  }
+
+  // Simple built-in reader, used when Claude isn't available.
+  const SUBJECTS = ["maths", "math", "mathematics", "science", "physics", "chemistry", "biology", "english", "hindi", "gujarati", "marathi", "sanskrit", "french", "german", "social studies", "sst", "history", "geography", "economics", "accounts", "accountancy", "commerce", "computer", "evs", "coding"];
+  const DAYRX = [/\bsun(day)?\b/, /\bmon(day)?\b/, /\btue(s|sday)?\b/, /\bwed(nesday)?\b/, /\bthu(r|rs|rsday)?\b/, /\bfri(day)?\b/, /\bsat(urday)?\b/];
+  function quickParse(text) {
+    const out = [], t = today();
+    for (const raw of text.split(/\n+/)) {
+      let msg = raw.trim(), sender = "";
+      if (!msg) continue;
+      const m = msg.match(/^\[?\d{1,4}[\/.\-]\d{1,2}[\/.\-]\d{1,4},?\s+\d{1,2}[:.]\d{2}(?::\d{2})?\s*(?:[ap]\.?\s?m\.?)?\]?\s*-?\s*([^:]{1,40}):\s*(.*)$/i) || msg.match(/^()([A-Za-z][A-Za-z .'&]{0,29}):\s*(.*)$/);
+      if (m && m.length === 3) { sender = m[1].trim(); msg = m[2]; }
+      else if (m) { sender = m[2].trim(); msg = m[3]; }
+      const low = " " + msg.toLowerCase() + " ";
+      const who = (sender.replace(/'s\b/gi, "").replace(/\b(mom|mum|mummy|mother|papa|dad|daddy|father|aunty|auntie|uncle|parent)\b/gi, "").trim() || "").split(/\s+/)[0] || "";
+      const subject = SUBJECTS.find((s) => new RegExp("\\b" + s + "\\b").test(low)) || "";
+      const days = DAYRX.map((rx, i) => (rx.test(low) ? i : -1)).filter((i) => i >= 0);
+      let date = null;
+      if (/\bday after tomorrow\b/.test(low)) date = addDays(t, 2);
+      else if (/\b(tomorrow|tmrw|tmr)\b/.test(low)) date = addDays(t, 1);
+      else if (/\b(today|tonight)\b/.test(low)) date = t;
+      const nextOf = (wd) => { for (let i = 0; i < 7; i++) { const d = addDays(t, i); if (parseYmd(d).getDay() === wd) return d; } return t; };
+      if (/\b(cancel|no class|no tuition|no tution|not coming|won'?t come|can'?t come|skip|holiday|off)\b/.test(low)) {
+        const s = state.sessions.find((x) => x.student && (low.includes(x.student.toLowerCase().split(/\s+/)[0]) || (who && x.student.toLowerCase().startsWith(who.toLowerCase()))));
+        if (s) out.push({ action: "cancel", sessionId: s.id, date: date || (days.length ? nextOf(days[0]) : t), quote: msg });
+        continue;
+      }
+      const tr = low.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to|till|until)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/);
+      const ts = tr ? null : low.match(/(?:at|@|by)?\s(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\b/) || low.match(/(?:at|@)\s*(\d{1,2})(?:[:.](\d{2}))\b/);
+      if (!tr && !ts) continue;
+      const to24 = (h, mm, ap, fallbackAp) => {
+        h = Number(h); mm = Number(mm || 0); ap = ap || fallbackAp;
+        if (ap === "pm" && h < 12) h += 12; else if (ap === "am" && h === 12) h = 0;
+        else if (!ap && h >= 1 && h <= 8) h += 12;
+        return h < 24 && mm < 60 ? `${pad(h)}:${pad(mm)}` : null;
+      };
+      let start, end;
+      if (tr) { start = to24(tr[1], tr[2], tr[3], tr[6]); end = to24(tr[4], tr[5], tr[6], tr[3]); }
+      else start = to24(ts[1], ts[2], ts[3]);
+      if (!start) continue;
+      const weekly = !date && days.length > 0 && (/\b(every|daily|weekly|from this week|regular|each)\b/.test(low) || days.length > 1);
+      const item = cleanItem({ action: "add", student: who, subject: subject ? subject[0].toUpperCase() + subject.slice(1) : "", weekly, days, date: weekly ? null : date || (days.length ? nextOf(days[0]) : null), start, end, note: end ? "" : "assumed 1 hour", quote: msg });
+      if (item) out.push(item);
+    }
+    return out;
+  }
+
+  function showReview(items, note) {
+    view.review = items;
+    $("review").innerHTML = items.map((it, i) => `<label for="rv-${i}"><input type="checkbox" id="rv-${i}" checked>
+      <span><span class="kind ${it.action}">${{ add: "New class", cancel: "Cancel", move: "Move", followup: "To follow up" }[it.action]}</span><br>${describe(it)}${it.quote ? `<br><span class="quote">“${esc(it.quote)}”</span>` : ""}</span></label>`).join("");
+    $("reviewActions").hidden = !items.length;
+    $("inboxStatus").textContent = items.length ? `Found ${items.length}. Untick anything that looks wrong.${note ? " " + note : ""}` : `No class timings found in those messages.${note ? " " + note : ""}`;
+  }
+  async function readMessages() {
+    const text = $("inboxText").value.trim();
+    if (!text) { $("inboxStatus").textContent = "Paste some messages first."; return; }
+    if (!sampleFn) { showReview(quickParse(text), "Read with the simple reader, so double-check the times."); return; }
+    const btn = $("readBtn");
+    btn.disabled = true; btn.textContent = "Reading…";
+    $("inboxStatus").textContent = "Claude is reading your messages. This can take up to a minute.";
+    try { showReview(await readWithClaude(text)); }
+    catch (e) {
+      const why = e && e.code === "rate_limited" ? "Claude is busy right now." : e && e.code === "not_granted" ? "Claude wasn't allowed to read them." : "Claude couldn't read them this time.";
+      showReview(quickParse(text), why + " Used the simple reader instead, so double-check the times.");
+    } finally { btn.disabled = false; btn.textContent = "Read messages"; }
+  }
+  function applyReview() {
+    const chosen = view.review.filter((_, i) => $("rv-" + i)?.checked);
+    if (!chosen.length) return;
+    let firstDate = null;
+    closeSheet();
+    commit((st) => {
+      leaveSample(st);
+      for (const it of chosen) {
+        if (it.action === "add") {
+          const rec = { id: uid(), student: it.student, subject: it.subject, days: it.days, date: it.date, start: it.start, end: it.end, place: it.place, note: it.note, cancelled: [] };
+          const same = st.sessions.find((x) => x.student && x.student === rec.student && Number.isInteger(x.color));
+          rec.color = same ? same.color : colorOf(rec);
+          st.sessions.push(rec);
+          firstDate = firstDate || it.date;
+        } else if (it.action === "followup") {
+          st.followups = [...(st.followups || []), { id: uid(), student: it.student, text: it.text, at: today() }];
+        } else {
+          const s = st.sessions.find((x) => x.id === it.sessionId); if (!s) continue;
+          if (it.date) {
+            if (s.date === it.date && it.action === "cancel") { st.sessions = st.sessions.filter((x) => x.id !== s.id); continue; }
+            s.cancelled = [...new Set([...(s.cancelled || []), it.date])];
+          }
+          if (it.action === "move") {
+            if (s.date && (!it.date || s.date === it.date)) { s.date = it.newDate; s.start = it.start; s.end = it.end; }
+            else st.sessions.push({ ...s, id: uid(), days: null, date: it.newDate, start: it.start, end: it.end, cancelled: [], note: "Moved" + (it.date ? " from " + fmtDate(it.date) : ""), color: colorOf(s) });
+            firstDate = firstDate || it.newDate;
+          }
+        }
+      }
+    }, `${chosen.length} change${chosen.length > 1 ? "s" : ""} added to your calendar`);
+    if (view.inboxOpen.length) { clearInbox(view.inboxOpen); view.inboxOpen = []; }
+    if (firstDate) { view.day = firstDate; render(); }
+  }
+
+  // ---------- WhatsApp inbox (filled by the reader on the tutor's Mac) ----------
+  let dbNs = null;
+  view.inbox = []; view.inboxOpen = [];
+  function renderInbox() {
+    const b = $("inboxBanner"), n = view.inbox.length;
+    b.hidden = !n;
+    if (!n) return;
+    const names = [...new Set(view.inbox.map((m) => m.chat || m.sender).filter(Boolean))];
+    const who = names.slice(0, 3).join(", ") + (names.length > 3 ? ` and ${names.length - 3} more` : "");
+    b.innerHTML = `<span><b>${n} new WhatsApp message${n > 1 ? "s" : ""}</b>${who ? " from " + esc(who) : ""}</span><button type="button" class="primary" id="inboxReview">Review</button>`;
+    $("inboxReview").onclick = () => {
+      const msgs = view.inbox.slice().sort((a, b) => (a.atMs || 0) - (b.atMs || 0));
+      const text = msgs.map((m) => {
+        const when = m.atMs ? new Date(m.atMs).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
+        const who = m.fromMe ? "Me" : m.sender || m.chat || "Someone";
+        return `[${when}] ${who}${m.chat && m.chat !== who ? ` (chat: ${m.chat})` : ""}: ${m.text}`;
+      }).join("\n");
+      // The Mac's WhatsApp check reads the messages with Claude and attaches suggested changes.
+      const items = msgs.flatMap((m) => (Array.isArray(m.items) ? m.items : []));
+      openWhatsApp(text, msgs.map((m) => m.id), items);
+    };
+  }
+  // Which WhatsApp chats the Mac reads, kept in the db so the Mac's 10-minute check can follow it.
+  let waConfig = { chats: [], available: [] }, waVersionReady = false;
+  function drawWa() {
+    const list = $("wa-list");
+    if (!list) return;
+    if (!dbNs) { list.innerHTML = `<p class="muted small">Sign in to manage chats here.</p>`; return; }
+    if (!waVersionReady) { list.innerHTML = `<p class="muted small">Loading your chats…</p>`; return; }
+    list.innerHTML = waConfig.chats.length
+      ? waConfig.chats.map((c) => `<div class="lrow"><div>${esc(c)}</div><button type="button" class="plain danger sm" data-wadel="${esc(c)}">Remove</button></div>`).join("")
+      : `<p class="muted small">No chats yet. Add one below.</p>`;
+    $("wa-names").innerHTML = (waConfig.available || []).filter((c) => !waConfig.chats.includes(c)).map((c) => `<option value="${esc(c)}"></option>`).join("");
+  }
+  async function saveWaChats(chats, msg) {
+    if (!dbNs) return;
+    const ref = dbNs.doc("config/whatsapp");
+    try {
+      const snap = await ref.get();
+      if (snap.exists) await ref.update({ chats, updatedAt: Date.now() });
+      else await ref.set({ chats, available: [], updatedAt: Date.now() });
+      toast(`${msg}. Your Mac picks this up within 10 minutes.`);
+    } catch { if ($("wa-status")) $("wa-status").textContent = "Couldn't save the chat list. Try again in a moment."; }
+  }
+
+  async function clearInbox(ids) {
+    if (!dbNs) return;
+    for (const id of ids) { try { await dbNs.doc("inbox/" + id).delete(); } catch {} }
+  }
+
+  // ---------- start: Firebase sign-in and private storage ----------
+  // Everything lives under users/<uid>/ in Firestore, readable only by that signed-in user.
+  render();
+  let unsubs = [];
+  function userDb(uid) {
+    const base = firebase.firestore().collection("users").doc(uid);
+    return {
+      doc: (p) => { const [c, d] = p.split("/"); return base.collection(c).doc(d); },
+      collection: (p) => base.collection(p),
+    };
+  }
+  function showGate(show) {
+    $("authGate").hidden = !show;
+    if (show) { $("authErr").hidden = true; setTimeout(() => $("authEmail").focus(), 50); }
+  }
+  const authMsg = (code) => ({
+    "auth/invalid-email": "That email address doesn't look right.",
+    "auth/missing-password": "Type your password.",
+    "auth/weak-password": "Use at least 6 characters for the password.",
+    "auth/email-already-in-use": "There's already an account with this email. Sign in instead.",
+    "auth/invalid-credential": "Email or password is wrong.",
+    "auth/wrong-password": "Email or password is wrong.",
+    "auth/user-not-found": "No account with this email yet. Tap Create account.",
+    "auth/too-many-requests": "Too many tries. Wait a minute and try again.",
+    "auth/network-request-failed": "No internet connection. Try again when you're online.",
+  }[code] || "Couldn't sign in. Try again.");
+  function wireGate(auth) {
+    const err = (m) => { $("authErr").textContent = m; $("authErr").hidden = false; };
+    const creds = () => [$("authEmail").value.trim(), $("authPass").value];
+    $("authForm").onsubmit = (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(...creds()).catch((x) => err(authMsg(x.code))); };
+    $("authCreate").onclick = () => auth.createUserWithEmailAndPassword(...creds()).catch((x) => err(authMsg(x.code)));
+    $("authReset").onclick = () => {
+      const [email] = creds();
+      if (!email) return err("Type your email first, then tap Forgot password.");
+      auth.sendPasswordResetEmail(email).then(() => err("Password reset email sent. Check your inbox.")).catch((x) => err(authMsg(x.code)));
+    };
+  }
+  function startFirebase() {
+    const cfg = window.TUTORING_FIREBASE_CONFIG;
+    if (!window.firebase || !cfg || !cfg.apiKey) {
+      toast("Running without an account: changes stay on this device.");
+      return;
+    }
+    firebase.initializeApp(cfg);
+    const auth = firebase.auth();
+    try { firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch(() => {}); } catch {}
+    window.tutoringSignOut = () => auth.signOut();
+    wireGate(auth);
+    auth.onAuthStateChanged((u) => {
+      unsubs.forEach((f) => { try { f(); } catch {} });
+      unsubs = []; dbNs = null; docRef = null;
+      if (!u) { showGate(true); return; }
+      showGate(false);
+      startSync(userDb(u.uid));
+    });
+  }
+  // One-time move from the old Claude calendar: only when this account has no timetable yet
+  // and an import.json sits next to the page (it is never published).
+  async function importOnce(db, ref) {
+    const snap = await ref.get();
+    if (snap.exists) return;
+    let data;
+    try {
+      const r = await fetch("import.json", { cache: "no-store" });
+      if (!r.ok) return;
+      data = await r.json();
+    } catch { return; }
+    if (!data || !data.state) return;
+    const st = normalize(data.state);
+    delete st.upgraded;
+    st.savedAt = Date.now();
+    await ref.set({ state: JSON.parse(JSON.stringify(st)) });
+    if (data.whatsapp) await db.doc("config/whatsapp").set({ ...data.whatsapp, updatedAt: Date.now() });
+    toast("Your timetable, fees and settings were moved into your account.");
+  }
+  function startSync(db) {
+    {
+      dbNs = db;
+      try { unsubs.push(db.collection("inbox").onSnapshot((snap) => { view.inbox = snap.docs.map((d) => ({ ...d.data(), id: d.id })); renderInbox(); }, () => {})); } catch {}
+      try {
+        unsubs.push(db.doc("config/whatsapp").onSnapshot((snap) => {
+          const d = snap.exists ? snap.data() : {};
+          waConfig = { chats: Array.isArray(d.chats) ? d.chats : [], available: Array.isArray(d.available) ? d.available : [] };
+          waVersionReady = true;
+          drawWa();
+        }, () => {}));
+      } catch {}
+      const ref = db.doc("data/planner");
+      (async () => { try {
+        await importOnce(db, ref);
+        const snap = await ref.get();
+        const remote = snap.exists ? snap.data()?.state : null;
+        docRef = ref;
+        if (remote && (remote.savedAt || 0) >= (state.savedAt || 0)) {
+          state = normalize(remote);
+          if (state.upgraded) { delete state.upgraded; persist(); }
+          else try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
+          render();
+        } else if (state.savedAt) persist();
+        // Pick up changes saved from another device (or by the Mac) instead of overwriting them later.
+        unsubs.push(ref.onSnapshot((snap) => {
+          const r = snap.exists ? snap.data()?.state : null;
+          if (!r || (r.savedAt || 0) <= (state.savedAt || 0)) return;
+          state = normalize(r);
+          delete state.upgraded;
+          try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
+          if (!drag && $("scrim").hidden) render();
+        }, () => {}));
+      } catch {} })();
+    }
+  }
+  startFirebase();
+})();
+</script>
+</body>
+</html>

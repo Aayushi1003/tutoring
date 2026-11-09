@@ -1,0 +1,13 @@
+{
+  "name": "My Tutoring Calendar",
+  "short_name": "Tutoring",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FAF7FD",
+  "theme_color": "#8B76E0",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
